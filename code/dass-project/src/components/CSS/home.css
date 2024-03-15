@@ -1,0 +1,51 @@
+.App {
+  text-align: center;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #333;
+  color: white;
+}
+
+.about {
+  padding: 20px;
+  font-size: 40px;
+  background-color: #f4f4f4;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 100px; /* Adjust size as needed */
+  height: 100px; /* Adjust size as needed */
+  margin-right: 10px;
+}
+
+.header-right {
+  display: flex;
+}
+
+.button {
+  margin-left: 10px;
+  padding: 30px 40px; /* Increased size */
+  border: none;
+  background-color: #555;
+  color: white;
+  cursor: pointer;
+  font-size: 30px; /* Increased font size */
+}
+
+.main-content {
+  padding: 20px;
+}
+
+.photos {
+  /* Add styling for photos */
+}
