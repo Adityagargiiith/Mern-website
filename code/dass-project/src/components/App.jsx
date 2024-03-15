@@ -1,75 +1,20 @@
 import React, { useState } from "react";
 import loginInfo from "../loginInfo";
 import LoginInfo from "./LoginInfo";
+import SignupPage from "./Signup";
+
+import {BrowserRouter as Router, Route, Switch, BrowserRouter, Routes} from 'react-router-dom';
+import LoginPage from "./LoginPage";
 
 function App() {
-    const [errorMessages, setErrorMessages] = useState({});
-    const [isSubmitted, setIsSubmitted] = useState(false);
-
-    loginInfo.map(item => (
-        <LoginInfo
-            username={item.username}
-            password={item.password}
-        />
-    ))
-
-    const errors = {
-        uname: "invalid username",
-        pass: "invalid password"
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-
-        var { uname, pass } = document.forms[0];
-
-        const userData = loginInfo.find((user) => user.username === uname.value);
-
-        if (userData) {
-            if (userData.password !== pass.value) {
-                setErrorMessages({ name: "pass", message: errors.pass });
-            } else {
-                setIsSubmitted(true);
-            }
-        } else {
-            setErrorMessages({ name: "uname", message: errors.uname });
-        }
-    };
-
-    const renderErrorMessage = (name) =>
-        name === errorMessages.name && (
-            <div className="error">{errorMessages.message}</div>
-        );
-
-    const renderForm = (
-        <div className="form">
-            <form onSubmit={handleSubmit}>
-                <div className="input-container">
-                    <label>Username </label>
-                    <input type="text" name="uname" required />
-                    {renderErrorMessage("uname")}
-                </div>
-                <div className="input-container">
-                    <label>Password </label>
-                    <input type="password" name="pass" required />
-                    {renderErrorMessage("pass")}
-                </div>
-                <div className="button-container">
-                    <input type="submit" />
-                </div>
-            </form>
-        </div>
-    );
-
     return (
-        <div className="app">
-            <div className="login-form">
-                <div className="title">
-
-                    {isSubmitted ? <div>Log in succeseeful</div> : renderForm}
-                </div>
-            </div>
-        </div>
+        <BrowserRouter>
+        <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+        </Routes>
+        
+        </BrowserRouter>
     );
 }
 
