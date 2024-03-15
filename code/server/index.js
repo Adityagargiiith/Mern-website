@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(cors());
 
 
-mongoose.connect("mongodb://127.0.0.1:27017/Login_authorization", {
+mongoose.connect("mongodb+srv://team_31:arka_dass@employees.wohdss3.mongodb.net/?retryWrites=true&w=majority", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });

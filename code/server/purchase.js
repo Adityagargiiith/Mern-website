@@ -7,10 +7,11 @@ const port = 5000;
 const app = express();
 const cors = require("cors");
 // Connect to MongoDB
-mongoose.connect("mongodb://127.0.0.1:27017/Purchase", {
+mongoose.connect("mongodb+srv://team_31:arka_dass@employees.wohdss3.mongodb.net/Arka/?retryWrites=true&w=majority", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+console.log("Connected")
 
 // Define schema
 const purchaseSchema = new mongoose.Schema({

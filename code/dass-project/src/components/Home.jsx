@@ -1,8 +1,8 @@
 import React from "react";
 import "./CSS/home.css";
 // import e from "express";
-import img1 from "./company_logo.png";
-import {Link} from 'react-router-dom';
+import img1 from "./CSS/arka_logo.png";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   return (
@@ -10,18 +10,18 @@ export default function Home() {
       <header className="header">
         <div className="header-left">
           <img src={img1} alt="Cogo" className="logo" />
-          <h1 className="company-name">Arka Aerospace</h1>
         </div>
-        <div className="header-right">
-        <Link to="/purchase">
-            <button className="button button-large">Purchase a tool</button>
-          </Link>
-          <span style={{ marginRight: "20px" }}></span>
-          <Link to="/viewallpurchase">
-            <button className="button button-large">View all the purchase</button>
-          </Link>
-        </div>
+        <div className="header-right"></div>
       </header>
+      <div className="main-body">
+      <Link to="/purchase-page">
+        <button className="button purchase-button">Make/View Purchases</button>
+      </Link>
+      <span style={{ marginRight: "300px" }}></span>
+      <Link to="/home">
+        <button className="button drone-button" img="./CSS/drone.jpg">Book a slot for Drone Testing</button>
+      </Link>
+      </div>
       <main className="main-content">
         <h1>About the Company</h1>
         <br />
@@ -38,7 +38,6 @@ export default function Home() {
             Copyright © 2024 Arka Aerospace - All Rights Reserved.
           </p>
         </div>
-        <div className="photos">{/* Display photos here */}</div>
       </main>
     </div>
   );

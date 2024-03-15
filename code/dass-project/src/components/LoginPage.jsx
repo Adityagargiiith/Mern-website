@@ -3,7 +3,12 @@ import { useState } from "react";
 import loginInfo from "../loginInfo";
 import LoginInfo from "./LoginInfo";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // If using React Router
+import { useNavigate } from "react-router-dom";
+import image from "./CSS/arka_logo.png";
+import "./CSS/login.css";
+import img1 from "./CSS/arka_logo.png";
+import lkimg from "./CSS/lock.png";
+import usimg from "./CSS/user.png";
 
 import React from "react";
 
@@ -17,7 +22,7 @@ export default function LoginPage() {
   ));
 
   const errors = {
-    uname: "invalid username",
+    uname: "invalid username/email",
     pass: "invalid password",
   };
 
@@ -47,7 +52,7 @@ export default function LoginPage() {
         // Handle error scenarios
       });
 
-    const userData = loginInfo.find((user) => user.username === email.value);
+    const userData = loginInfo.find((user) => user.username === email.value || user.email === email.value);
 
     if (userData) {
       if (userData.password !== pass.value) {
@@ -66,32 +71,39 @@ export default function LoginPage() {
     );
 
   const renderForm = (
-    <div className="form">
-      <form onSubmit={handleSubmit}>
-        <div className="input-container">
-          <label>Email </label>
-          <input type="text" name="email" required />
+    <>
+    <div className="App">
+      <img src={img1} alt="Arka Logo" className="image"/>
+
+      <div className="grid">
+      <form onSubmit={handleSubmit} className="form login">
+        <div className="form__field">
+        <label for="login__username"><img src={usimg} class="icon"/><span class="hidden">Username / E-mail</span></label>
+          <input type="text" className="form__input" placeholder="Username / E-mail" name="email" style={{ height: '60px' }}  required />
           {renderErrorMessage("uname")}
         </div>
-        <div className="input-container">
-          <label>Password </label>
-          <input type="password" name="pass" required />
+        
+        <div className="form__field">
+        <label for="login__password"><img src={lkimg} className="icon"/><span class="hidden">Password</span></label>
+          <input type="password" className="form__input" placeholder="Password" name="pass" style={{ height: '60px' }} required />
           {renderErrorMessage("pass")}
         </div>
-        <div className="button-container">
+        <div className="form__field">
           <input type="submit" />
         </div>
       </form>
+      </div>
     </div>
+    </>
+  );
+
+  const logoinsert = (
+    <img src={image} alt="Arka Logo" className="image"/>
   );
 
   return (
-    <div className="app">
-      <div className="login-form">
-        <div className="title">
+      <>
           {isSubmitted ? <div>Log in succeseeful</div> : renderForm}
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
