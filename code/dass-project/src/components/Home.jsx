@@ -1,12 +1,23 @@
-import React from "react";
+import React,{useEffect ,useState} from "react";
 import "./CSS/home.css";
 // import e from "express";
 import img1 from "./CSS/arka_logo.png";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { USER } from "./LoginPage";
+import "./loading.css";
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
   return (
     <div className="App">
       <header className="header">
@@ -15,6 +26,13 @@ export default function Home() {
         </div>
         <div className="header-right">Hello, {USER}</div>
       </header>
+      {isLoading ? (
+        <div className="loading-container">
+        <div className="loading-spinner">
+        </div>
+        </div>
+      ) : (
+
       <motion.div
         className="main-body"
         initial={{ height: 0 }}
@@ -32,7 +50,7 @@ export default function Home() {
             Book a slot for Drone Testing
           </button>
         </Link>
-      </motion.div>
+      </motion.div>)}
       <main className="main-content">
         <br />
         <footer className="about">

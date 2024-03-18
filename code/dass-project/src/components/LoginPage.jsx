@@ -40,22 +40,25 @@ export default function LoginPage() {
         password: pass.value,
       })
       .then((result) => {
-        console.log(email.value);
-        console.log(pass.value);
-        console.log(result);
+        // console.log(email.value);
+        // console.log(pass.value);
+        // console.log(result);
         if (result.status === 201) {
-          console.log("hello");
+          // console.log("hello");
           USER = result.data.username;
           ROLE = result.data.role;
-          console.log(USER);
+          // console.log(USER);
           setTimeout(() => {
             navigate("/home");
           }, 800);
         } else if (result.status === 210) {
+          USER ="";
           alert("Invalid username or password");
+          
         }
       })
       .catch((error) => {
+        USER ="";
         console.error("Error logging in:", error);
         // Handle error scenarios
       });

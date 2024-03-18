@@ -4,7 +4,6 @@ import "./CSS/purchasepage.css";
 import img1 from "./CSS/arka_logo.png";
 import { motion } from "framer-motion";
 import { USER } from "./LoginPage";
-
 export default function PurchaseTracker() {
   const [purchases, setPurchases] = useState([]);
 
