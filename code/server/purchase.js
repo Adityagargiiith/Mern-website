@@ -7,7 +7,7 @@ const port = 5000;
 const app = express();
 const cors = require("cors");
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://team_31:arka_dass@employees.wohdss3.mongodb.net/Arka/?retryWrites=true&w=majority", {
+mongoose.connect("mongodb+srv://gargaditya2405:05dx9FW99PHBg2za@arkadatabase.6xgb4kx.mongodb.net/?retryWrites=true&w=majority&appName=ArkaDatabase", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -15,16 +15,14 @@ console.log("Connected")
 
 // Define schema
 const purchaseSchema = new mongoose.Schema({
-  // linkToPurchase: String,
-  // componentName: String,
-  // quantity: Number,
-  // chimsFile: String,
-  // poBomQuoteFile: String,
-  // team: String,
-  // project: String,
+  linkToPurchase: String,
   componentName: String,
   quantity: Number,
+  chimsFile: String,
+  poBomQuoteFile: String,
+  project: String,
   team: String,
+
 });
 
 const Purchase = mongoose.model("Purchase", purchaseSchema);
@@ -38,7 +36,7 @@ app.post("/purchase", async (req, res) => {
     await purchase.save();
     res.status(201).send(purchase);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send(error);json("success")
   }
 });
 app.get("/purchase", async (req, res) => {

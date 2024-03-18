@@ -1,30 +1,33 @@
 // import react from 'react';
-import { useState } from "react";
 import loginInfo from "../loginInfo";
 import LoginInfo from "./LoginInfo";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import image from "./CSS/arka_logo.png";
 import "./CSS/login.css";
 import img1 from "./CSS/arka_logo.png";
 import lkimg from "./CSS/lock.png";
 import usimg from "./CSS/user.png";
+import { motion } from "framer-motion";
+// import Alert from "@material-ui/lab/Alert";
 
 import React from "react";
 
+var USER = "";
+var ROLE = "";
+
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [errorMessages, setErrorMessages] = useState({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  // const [errorMessages, setErrorMessages] = useState({});
+  // const [isSubmitted, setIsSubmitted] = useState(false);
 
   loginInfo.map((item) => (
     <LoginInfo username={item.username} password={item.password} />
   ));
 
-  const errors = {
-    uname: "invalid username/email",
-    pass: "invalid password",
-  };
+  // const errors = {
+  //   uname: "invalid username/email",
+  //   pass: "invalid password",
+  // };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -40,11 +43,16 @@ export default function LoginPage() {
         console.log(email.value);
         console.log(pass.value);
         console.log(result);
-        if (result.data === "success") {
+        if (result.status === 201) {
           console.log("hello");
+          USER = result.data.username;
+          ROLE = result.data.role;
+          console.log(USER);
           setTimeout(() => {
             navigate("/home");
-          }, 2000);
+          }, 800);
+        } else if (result.status === 210) {
+          alert("Invalid username or password");
         }
       })
       .catch((error) => {
@@ -52,58 +60,86 @@ export default function LoginPage() {
         // Handle error scenarios
       });
 
-    const userData = loginInfo.find((user) => user.username === email.value || user.email === email.value);
+    //   const userData = loginInfo.find(
+    //     (user) => (user.username === email.value || user.email === email.value),
+    //   );
 
-    if (userData) {
-      if (userData.password !== pass.value) {
-        setErrorMessages({ name: "pass", message: errors.pass });
-      } else {
-        setIsSubmitted(true);
-      }
-    } else {
-      setErrorMessages({ name: "email", message: errors.uname });
-    }
+    //   if (userData) {
+    //     if (userData.password !== pass.value) {
+    //       setErrorMessages({ name: "pass", message: errors.pass });
+    //     } else {
+    //       setIsSubmitted(true);
+    //     }
+    //   } else {
+    //     setErrorMessages({ name: "email", message: errors.uname });
+    //   }
   };
 
-  const renderErrorMessage = (name) =>
-    name === errorMessages.name && (
-      <div className="error">{errorMessages.message}</div>
-    );
+  // const renderErrorMessage = (name) =>
+  //   name === errorMessages.name && (
+  //     <div className="error">{errorMessages.message}</div>
+  //   );
 
   const renderForm = (
     <>
-    <div className="App">
-      <img src={img1} alt="Arka Logo" className="image"/>
+      <div className="App">
+        <motion.div
+          initial={{ y: 250 }}
+          animate={{ y: 0 }}
+          transition={{ delay: 1.0, duration: 1.0 }}
+        >
+          <img src={img1} alt="Arka Logo" className="image" />
+        </motion.div>
 
-      <div className="grid">
-      <form onSubmit={handleSubmit} className="form login">
-        <div className="form__field">
-        <label for="login__username"><img src={usimg} class="icon"/><span class="hidden">Username / E-mail</span></label>
-          <input type="text" className="form__input" placeholder="Username / E-mail" name="email" style={{ height: '60px' }}  required />
-          {renderErrorMessage("uname")}
-        </div>
-        
-        <div className="form__field">
-        <label for="login__password"><img src={lkimg} className="icon"/><span class="hidden">Password</span></label>
-          <input type="password" className="form__input" placeholder="Password" name="pass" style={{ height: '60px' }} required />
-          {renderErrorMessage("pass")}
-        </div>
-        <div className="form__field">
-          <input type="submit" />
-        </div>
-      </form>
+        <motion.div
+          className="grid"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.7 }}
+        >
+          <form onSubmit={handleSubmit} className="form login">
+            <div className="form__field">
+              <label htmlFor="login__username">
+                <img src={usimg} alt="user" className="icon" />
+                <span className="hidden">Username / E-mail</span>
+              </label>
+              <input
+                type="text"
+                className="form__input"
+                placeholder="Username / E-mail"
+                name="email"
+                style={{ height: "60px" }}
+                required
+              />
+              {/* {renderErrorMessage("uname")} */}
+            </div>
+
+            <div className="form__field">
+              <label htmlFor="login__password">
+                <img src={lkimg} alt="pass" className="icon" />
+                <span className="hidden">Password</span>
+              </label>
+              <input
+                type="password"
+                className="form__input"
+                placeholder="Password"
+                name="pass"
+                style={{ height: "60px" }}
+                required
+              />
+              {/* {renderErrorMessage("pass")} */}
+            </div>
+            <div className="form__field">
+              <input type="submit" />
+            </div>
+          </form>
+        </motion.div>
       </div>
-    </div>
     </>
   );
 
-  const logoinsert = (
-    <img src={image} alt="Arka Logo" className="image"/>
-  );
-
-  return (
-      <>
-          {isSubmitted ? <div>Log in succeseeful</div> : renderForm}
-    </>
-  );
+  return renderForm;
 }
+
+export { USER };
+export { ROLE };

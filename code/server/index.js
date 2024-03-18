@@ -7,28 +7,83 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const e = require("express");
 const employeemodel = require("./employee");
-// const app
+const multer = require("multer");
+// const multer = require("multer");
 app.use(express.json());
 app.use(cors());
-
-
-mongoose.connect("mongodb+srv://team_31:arka_dass@employees.wohdss3.mongodb.net/?retryWrites=true&w=majority", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
+app.use("/files", express.static("files"));
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./files");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now();
+    cb(null, uniqueSuffix + file.originalname);
+  },
 });
+
+// require("./pdfDetails");
+const PdfDetailsSchema = new mongoose.Schema(
+  {
+    pdf: String,
+    title: String,
+  },
+  { collection: "PdfDetails" }
+);
+// const PdfSchema = mongoose.model("PdfDetails");
+// require("./pdfDetails");
+const PdfSchema = mongoose.model("PdfDetailsSchema", PdfDetailsSchema);
+const upload = multer({ storage: storage });
+
+// const upload = multer({ dest: "./files" });
+app.post("/upload-files", upload.single("chimsFile2"), async (req, res) => {
+  console.log(req.file);
+  // res.send(req.file);
+  const title = req.file.originalname;
+  const pdf = req.file.filename;
+  console.log(title);
+  console.log(pdf);
+  try {
+    const pdfDetails = new PdfSchema({ pdf, title });
+    await pdfDetails.save();
+    res.status(201).send(pdfDetails);
+  } catch (error) {
+    res.status(400).send;
+  }
+});
+app.get("/get-files", async (req, res) => {
+  try {
+    PdfSchema.find({}).then((data) => {
+      res.send({ status: "ok", data: data });
+    });
+  } catch (error) {}
+});
+
+// const app
+
+mongoose.connect(
+  "mongodb+srv://gargaditya2405:05dx9FW99PHBg2za@arkadatabase.6xgb4kx.mongodb.net/?retryWrites=true&w=majority&appName=ArkaDatabase",
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+);
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-  employeemodel.findOne({ email: email })
+  employeemodel
+    .findOne({ $or: [{ username: email }, { email: email }] })
     .then((user) => {
       if (user) {
         if (user.password === password) {
-          res.json("success");
+          res.status(201).json(user);
         } else {
-          res.json("the password is incorrect");
+          res.status(210).json("the password is incorrect");
         }
       } else {
-        res.json("Create a new user");
+        res.status(210).json("User not found");
       }
     })
     .catch((error) => {
@@ -37,6 +92,45 @@ app.post("/login", (req, res) => {
     });
 });
 
+const purchaseSchema = new mongoose.Schema({
+  user: String,
+  date: String,
+  linkToPurchase: String,
+  componentName: String,
+  quantity: Number,
+  chimsFile: String,
+  quoteFile: String,
+  project: String,
+  team: String,
+  // chimsFiledata: String,
+  // quoteFiledata: String,
+});
+
+const Purchase = mongoose.model("Purchase", purchaseSchema);
+
+app.use(bodyParser.json());
+app.use(cors());
+app.use(express.json());
+// Handle form submission
+app.post("/purchase", async (req, res) => {
+  try {
+    const purchase = new Purchase(req.body);
+    await purchase.save();
+    res.status(201).send(purchase);
+  } catch (error) {
+    res.status(400).send(error);
+    // json("success");
+  }
+});
+app.get("/purchase", async (req, res) => {
+  try {
+    const purchases = await Purchase.find();
+    res.json(purchases);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 app.post("/register", (req, res) => {
   employeemodel

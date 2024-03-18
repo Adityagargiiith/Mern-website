@@ -6,6 +6,11 @@
   min-height: 100vh;
 }
 
+.heading {
+  font-family: bold;
+  text-shadow: 2px 2px 0 #000000;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -16,9 +21,17 @@
 
 .about {
   padding: 20px;
-  margin-bottom: 0px;
   font-size: 20px;
-  background-color: #342f2f;
+  background-color: rgba(0, 0, 0, 0.70);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.container {
+  margin-right: 0px;
+  margin-left: 280px;
 }
 
 .header-left {
@@ -34,6 +47,9 @@
 
 .header-right {
   display: flex;
+  align-items: center;
+  margin-right: 50px;
+  font-size: large;
 }
 
 .button {
@@ -71,7 +87,18 @@
   background-image: url('./purchaseform.jpg');
   background-size: cover;
   background-position: center;
+}
 
+.viewall-button {
+  background-image: url('./viewall.jpeg');
+  background-size: cover;
+  background-position: center;
+}
+
+.track-button {
+  background-image: url('./track.jpg');
+  background-size: cover;
+  background-position: center;
 }
  
 .main-body {
