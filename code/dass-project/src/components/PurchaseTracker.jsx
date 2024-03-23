@@ -3,8 +3,27 @@ import axios from "axios";
 import "./CSS/purchasepage.css";
 import img1 from "./CSS/arka_logo.png";
 import { motion } from "framer-motion";
-import { USER } from "./LoginPage";
+// import { USER } from "./LoginPage";
+import { getUser } from "./LoginPage";
+import { useNavigate } from "react-router";
+
 export default function PurchaseTracker() {
+  const navigate = useNavigate();
+  const [USER, setUSER] = useState(getUser());
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setUSER(getUser());
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
   const [purchases, setPurchases] = useState([]);
 
   useEffect(() => {
@@ -20,17 +39,42 @@ export default function PurchaseTracker() {
     fetchPurchases();
   }, []);
 
+  const handlehomeredirect = () => {
+    setTimeout(() => {
+      navigate("/home");
+    }, 100);
+  };
+
+  const handleLogout = () => {
+    // setUSER(""); // Update the state to an empty string
+    // setROLE("");
+    // Remove USER from localStorage
+
+    localStorage.removeItem("USER");
+    localStorage.removeItem("ROLE");
+
+    // Redirect to login page
+    setTimeout(() => {
+      navigate("/");
+    }, 800);
+  };
+
   const userPurchases = purchases.filter((purchase) => purchase.user === USER);
 
   return (
     <>
       <div className="App">
-        <header className="header">
-          <div className="header-left">
-            <img src={img1} alt="Logo" className="logo" />
-          </div>
-          <div className="header-right">Hello, {USER}</div>
-        </header>
+      <header className="header">
+        <div onClick={handlehomeredirect} className="header-left">
+          <img src={img1} alt="Cogo" className="logo" />
+        </div>
+        <div className="header-right">
+          Hello, {USER}
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      </header>
 
         <motion.div
           className="py-5 h-100"
@@ -79,7 +123,7 @@ export default function PurchaseTracker() {
                             {purchase.chimsFile}
                           </td>
                           <td className="table-secondary">
-                            {purchase.poBomQuoteFile}
+                            {purchase.quoteFile}
                           </td>
                         </tr>
                       ))}

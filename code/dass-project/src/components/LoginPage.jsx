@@ -9,20 +9,40 @@ import lkimg from "./CSS/lock.png";
 import usimg from "./CSS/user.png";
 import { motion } from "framer-motion";
 // import Alert from "@material-ui/lab/Alert";
+import { useEffect, useState } from "react";
+// import {setUse}
+// import { setUSER, setROLE } from "./Home";
 
 import React from "react";
 
-var USER = "";
-var ROLE = "";
+// var USER = "";
+// var ROLE = "";
+// export let USER = localStorage.getItem("user") || "";
+// export let ROLE = localStorage.getItem("role") || "";
+let USERNAME = localStorage.getItem("user") || "";
+let ROLENAME = localStorage.getItem("role") || "";
+
+export function getUser() {
+  return USERNAME;
+}
+
+export function getRole() {
+  return ROLENAME;
+}
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [USER, setUSER] = useState(localStorage.getItem("user") || "");
+  const [ROLE, setROLE] = useState(localStorage.getItem("role") || "");
   // const [errorMessages, setErrorMessages] = useState({});
   // const [isSubmitted, setIsSubmitted] = useState(false);
 
   loginInfo.map((item) => (
     <LoginInfo username={item.username} password={item.password} />
   ));
+  useEffect(() => {
+    console.log(USER);
+  }, [USER]);
 
   // const errors = {
   //   uname: "invalid username/email",
@@ -45,20 +65,26 @@ export default function LoginPage() {
         // console.log(result);
         if (result.status === 201) {
           // console.log("hello");
-          USER = result.data.username;
-          ROLE = result.data.role;
-          // console.log(USER);
+          // USER = result.data.username;
+          // ROLE = result.data.role;
+          localStorage.setItem("user", result.data.username);
+          localStorage.setItem("role", result.data.role);
+          setUSER(result.data.username);
+          setROLE(result.data.role);
+          console.log(USER);
           setTimeout(() => {
             navigate("/home");
-          }, 800);
+          }, 100);
         } else if (result.status === 210) {
-          USER ="";
+          // USER = "";
           alert("Invalid username or password");
-          
         }
       })
       .catch((error) => {
-        USER ="";
+        alert("Invalid username or password");
+        // USER = "";
+        // localStorage.removeItem("user");
+        // localStorage.removeItem("role");
         console.error("Error logging in:", error);
         // Handle error scenarios
       });
@@ -144,5 +170,5 @@ export default function LoginPage() {
   return renderForm;
 }
 
-export { USER };
-export { ROLE };
+// export { USER };
+// export { ROLE };

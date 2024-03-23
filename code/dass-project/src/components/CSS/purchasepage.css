@@ -1,92 +1,103 @@
 .card {
-    border-color: rgba(22, 22, 22, 0.80);
-    width: 95vw;
-}
-
-.card-old {
-    width: 40vw;
-    
+  border-color: rgba(22, 22, 22, 0.8);
+  width: 95vw;
+  /* padding: auto; */
 }
 
 .align-center {
-    padding-left: 2vw;
+  padding-left: 2%;
+}
+
+.card-old {
+  width: 70%;
 }
 
 .align-center-dif {
-    padding-left: 13vw;
+  padding-left: 15%;
 }
 
 .purchase-form {
-    color: white;
-    background-color: rgba(22, 22, 22, 0.80);
+  color: white;
+  background-color: rgba(22, 22, 22, 0.8);
 }
 
 .row {
-    text-align: left;
-    font-size: 20px;
-    font-family: Arial, Helvetica, sans-serif;
-    display:block;
+  text-align: left;
+  font-size: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  display: block;
 }
 
 input[type="radio"] {
-    background-color: rgba(22, 22, 22, 0.40);
+  background-color: rgba(22, 22, 22, 0.4);
 }
 
 input[type="radio"]:checked {
-    background-color: #8a0a0a;
-    border-color: #8a0a0a;
-    box-shadow: none;
+  background-color: #8a0a0a;
+  border-color: #8a0a0a;
+  box-shadow: none;
 }
 
 .btn-color {
-    background-color: #a41d1d;
-    width: 100px;
-    height: 50px;
-    border-color: #a41d1d;
-    box-shadow: none;
+  background-color: #a41d1d;
+  width: 100px;
+  height: 50px;
+  border-color: #a41d1d;
+  box-shadow: none;
 }
 
 .btn-color:hover {
-    background-color: #8a0a0a;
-    border-color: #8a0a0a;
+  background-color: #8a0a0a;
+  border-color: #8a0a0a;
 }
 
-.btn-color:clicked{
-    background-color: #a41d1d;
-    border-color: #a41d1d;
-    box-shadow: none;
+.btn-color:clicked {
+  background-color: #a41d1d;
+  border-color: #a41d1d;
+  box-shadow: none;
 }
 
 .form-control {
-    background-color: rgba(22, 22, 22, 0.40);
-    border: none;
-    color: white;
+  background-color: rgba(22, 22, 22, 0.4);
+  border: none;
+  color: white;
 }
 
 .form-control:focus {
-    background-color: rgba(22, 22, 22, 0.15);
-    color: white;
+  background-color: rgba(22, 22, 22, 0.15);
+  color: white;
 }
 
 input[type="file"]::file-selector-button {
-    box-shadow: none;
-    background-color: rgb(147, 158, 167);
-    color: black;
+  box-shadow: none;
+  background-color: rgb(147, 158, 167);
+  color: black;
 }
 
 .table-color {
-    background-color: rgba(22, 22, 22, 0.80);
-    color: white;
+  background-color: rgba(22, 22, 22, 0.8);
+  color: white;
 }
 
 .fixed-column {
-    width: 2px;
+  width: 2px;
 }
 
 .dropdown-option {
-    background-color: rgba(22, 22, 22, 0.80);
+  background-color: rgba(22, 22, 22, 0.8);
 }
 
 .dropdown-option:hover {
-    background-color: #8a0a0a;
+  background-color: #8a0a0a;
+}
+
+.file-btn {
+  background-color: inherit;
+  color: #000000;
+  border: none;
+}
+
+.file-btn:hover {
+  background-color: white;
+  color: black;
 }

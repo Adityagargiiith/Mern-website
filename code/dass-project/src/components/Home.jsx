@@ -1,19 +1,69 @@
-import React,{useEffect ,useState} from "react";
+import React, { useEffect, useState } from "react";
 import "./CSS/home.css";
 // import e from "express";
 import img1 from "./CSS/arka_logo.png";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { USER } from "./LoginPage";
-import "./loading.css";
+// import { USER } from "./LoginPage";
+// import "./loading.css";
+// import { navigate } from "@reach/router";
+import { useNavigate } from "react-router-dom";
+import { getUser, getRole } from "./LoginPage";
+
+// const USER = localStorage.getItem("USER") || "";
+// const ROLE = localStorage.getItem("ROLE") || "";
+// console.log(USER);
+// const USER = getUser();
+// const ROLE = getRole();
+
+// const USER = localStorage.getItem("USER") || "";
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  // const [isLoading, setIsLoading] = useState(true);
+  const [USER, setUSER] = useState(getUser());
+  const [ROLE, setROLE] = useState(getRole());
+
+  // Update USER and ROLE whenever localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setUSER(getUser());
+      setROLE(getRole());
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+  // }, []);
+
+  const handlehomeredirect = () => {
+    setTimeout(() => {
+      navigate("/home");
+    }, 100);
+  };
+
+  const handleLogout = () => {
+    // setUSER(""); // Update the state to an empty string
+    // setROLE("");
+    // Remove USER from localStorage
+
+    localStorage.removeItem("USER");
+    localStorage.removeItem("ROLE");
+
+    // Redirect to login page
+    setTimeout(() => {
+      navigate("/");
+    }, 100);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      setIsLoading(false);
+      // setIsLoading(false);
     };
 
     fetchData();
@@ -22,22 +72,20 @@ export default function Home() {
     <div className="App">
       <header className="header">
         <div className="header-left">
-          <img src={img1} alt="Cogo" className="logo" />
+          <img onClick={handlehomeredirect} src={img1} alt="Cogo" className="logo" />
         </div>
-        <div className="header-right">Hello, {USER}</div>
+        <div className="header-right">
+          Hello, {USER}
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
       </header>
-      {isLoading ? (
-        <div className="loading-container">
-        <div className="loading-spinner">
-        </div>
-        </div>
-      ) : (
-
       <motion.div
         className="main-body"
         initial={{ height: 0 }}
         animate={{ height: "100%" }}
-        exit={{ y: window.innerHeight, transition: {duration: 0.5} }}
+        exit={{ y: window.innerHeight, transition: { duration: 0.5 } }}
       >
         <Link to="/purchase-page">
           <button className="button purchase-button">
@@ -50,7 +98,7 @@ export default function Home() {
             Book a slot for Drone Testing
           </button>
         </Link>
-      </motion.div>)}
+      </motion.div>
       <main className="main-content">
         <br />
         <footer className="about">

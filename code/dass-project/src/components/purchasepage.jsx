@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./CSS/purchasepage.css";
 import img1 from "./CSS/arka_logo.png";
 import { motion } from "framer-motion";
-import { USER } from "./LoginPage";
+// import { USER } from "./LoginPage";
 import e from "cors";
+import { getUser } from "./LoginPage";
+import { set } from "mongoose";
 
 const getCurrDate = () => {
   let currDate = new Date();
@@ -18,6 +20,21 @@ const getCurrDate = () => {
 };
 
 export default function PurchasePage() {
+  const [USER, setUSER] = useState(getUser());
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setUSER(getUser());
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     user: USER,
@@ -87,68 +104,105 @@ export default function PurchasePage() {
 
   const [chimsFile2, setChimsFile] = useState("");
   const [chimsFile2title, setChimsFileTitle] = useState("");
-  const [quoteFile, setQuoteFile] = useState("");
+  // const [quoteFile, setQuoteFile] = useState("");
+  // const [quoteFileTitle, setQuoteFileTitle] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
 
-    // // Append non-file data
-    // formDataToSend.append("linkToPurchase", formData.linkToPurchase);
-    // formDataToSend.append("componentName", formData.componentName);
-    // formDataToSend.append("quantity", formData.quantity);
-    // formDataToSend.append("team", formData.team);
-    // formDataToSend.append("project", formData.project);
-
-    // // Append file data
-    formDataToSend.append("chimsFile2", chimsFile2);
-    formDataToSend.append("chimsFile2title", chimsFile2title);
-    console.log(chimsFile2);
-    console.log(chimsFile2title);
-    // formDataToSend.append("quoteFile", formData.quoteFiledata);
-    // console.log// Log the form data
-    try {
+    if (chimsFile2title === "") {
       await axios.post("http://localhost:5000/purchase", formData);
-      await axios.post("http://localhost:5000/upload-files", formDataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      // Assuming successful submission, redirect or show a success message
       navigate("/home"); // Redirect to a success page
       alert("Form submitted successfully");
-    } catch (error) {
-      // Handle error
-      console.error("Error:", error);
+    } else {
+      // Append file data
+      formDataToSend.append("chimsFile2", chimsFile2);
+      formDataToSend.append("chimsFile2title", chimsFile2title);
+      // formDataToSend.append("quoteFile", quoteFile);
+      // formDataToSend.append("quoteFileTitle", quoteFileTitle);
+
+      try {
+        // Upload the file and get the PdfDetails ObjectId
+        const uploadResponse = await axios.post(
+          "http://localhost:5000/upload-files",
+          formDataToSend,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        // Include the PdfDetails ObjectId in the purchase data
+        const purchaseData = {
+          ...formData,
+          pdfDetailsId: uploadResponse.data.pdfDetailsId,
+        };
+
+        // Send the purchase data
+        await axios.post("http://localhost:5000/purchase", purchaseData);
+
+        // Assuming successful submission, redirect or show a success message
+        navigate("/home"); // Redirect to a success page
+        alert("Form submitted successfully");
+      } catch (error) {
+        // Handle error
+        console.error("Error:", error);
+      }
     }
+  };
+
+  const handlehomeredirect = () => {
+    setTimeout(() => {
+      navigate("/home");
+    }, 100);
+  };
+
+  const handleLogout = () => {
+    // setUSER(""); // Update the state to an empty string
+    // setROLE("");
+    // Remove USER from localStorage
+
+    localStorage.removeItem("USER");
+    localStorage.removeItem("ROLE");
+
+    // Redirect to login page
+    setTimeout(() => {
+      navigate("/");
+    }, 800);
   };
 
   return (
     <>
       <div className="App">
         <header className="header">
-          <div className="header-left">
-            <img src={img1} alt="Logo" className="logo" />
+          <div onClick={handlehomeredirect} className="header-left">
+            <img src={img1} alt="Cogo" className="logo" />
           </div>
-          <div className="header-right">Hello, {USER}</div>
+          <div className="header-right">
+            Hello, {USER}
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </header>
 
         <motion.div
-          className="container py-5 h-100"
+          className="container py-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <div className="align-center-dif">
-            <div className="col-12 col-lg-9 col-xl-7">
+            <div className="">
               <div className="card card-old" style={{ borderRadius: 30 }}>
                 <div className="purchase-form p-md-5">
                   <h1 className="mb-md-5 heading">PURCHASE REQUISITION FORM</h1>
                   <form onSubmit={handleSubmit}>
                     <div className="row">
-                      <div className="col-md-6 mb-4">
-                        <div className="form-outline">
+                      <div className="mb-4">
+                        <div className="">
                           <label className="form-label" htmlFor="firstName">
                             Link to purchase{" "}
                             <span style={{ color: "red" }}>*</span>
@@ -269,6 +323,11 @@ export default function PurchasePage() {
                             id="quoteFile"
                             className="form-control form-control-lg-lg fileee"
                             style={{ width: "600px" }}
+                            // onChange={(e) => {
+                            //   handleFileChange(e);
+                            //   setQuoteFile(e.target.files[0]);
+                            //   setQuoteFileTitle(e.target.files[0].name);
+                            // }}
                             onChange={handleFileChange}
                           />
                           {formData.quoteFile}

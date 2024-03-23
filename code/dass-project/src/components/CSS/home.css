@@ -39,6 +39,10 @@
   align-items: center;
 }
 
+.header-left:hover {
+  cursor: pointer;
+}
+
 .logo {
   width: 240px; /* Adjust size as needed */
   height: 120px; /* Adjust size as needed */
@@ -109,4 +113,22 @@
 .main-content {
   padding: 20px;
   color: white;
+}
+
+.logout-button {
+  filter: opacity(0%);
+  transition: 200ms;
+  position: absolute;
+  top: 8.3%;
+  width: 8%;
+  background-color: rgba(138, 10, 10, 0.70);
+  color: white;
+  border-radius: 10px;
+  border: none;
+  padding: 5px;
+}
+
+.header-right:hover .logout-button {
+  filter: opacity(100%);
+  transition: 100ms;
 }

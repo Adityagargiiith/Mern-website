@@ -34,7 +34,8 @@ const PdfDetailsSchema = new mongoose.Schema(
 );
 // const PdfSchema = mongoose.model("PdfDetails");
 // require("./pdfDetails");
-const PdfSchema = mongoose.model("PdfDetailsSchema", PdfDetailsSchema);
+
+const PdfSchema = mongoose.model("PdfDetails", PdfDetailsSchema);
 const upload = multer({ storage: storage });
 
 // const upload = multer({ dest: "./files" });
@@ -48,7 +49,7 @@ app.post("/upload-files", upload.single("chimsFile2"), async (req, res) => {
   try {
     const pdfDetails = new PdfSchema({ pdf, title });
     await pdfDetails.save();
-    res.status(201).send(pdfDetails);
+    res.status(201).send({ pdfDetailsId: pdfDetails._id, pdfDetails });
   } catch (error) {
     res.status(400).send;
   }
@@ -102,6 +103,10 @@ const purchaseSchema = new mongoose.Schema({
   quoteFile: String,
   project: String,
   team: String,
+  pdfDetails: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "PdfDetails", // Referring to PdfDetailsSchema model
+  },
   // chimsFiledata: String,
   // quoteFiledata: String,
 });
@@ -114,17 +119,40 @@ app.use(express.json());
 // Handle form submission
 app.post("/purchase", async (req, res) => {
   try {
-    const purchase = new Purchase(req.body);
+    const { pdfDetailsId, ...purchaseData } = req.body;
+
+    // Create a new Purchase document with the pdfDetails reference
+    const purchase = new Purchase({
+      ...purchaseData,
+      pdfDetails: pdfDetailsId, // Pass the pdfDetailsId directly
+    });
     await purchase.save();
+
     res.status(201).send(purchase);
   } catch (error) {
     res.status(400).send(error);
-    // json("success");
   }
 });
+
+// app.post("/purchase", async (req, res) => {
+//   try {
+//     const { pdfDetailsId, ...purchaseData } = req.body;
+
+//     // Create a new Purchase document with the pdfDetails reference
+//     const purchase = new Purchase({
+//       ...purchaseData,
+//       pdfDetails: pdfDetailsId,
+//     });
+//     await purchase.save();
+
+//     res.status(201).send(purchase);
+//   } catch (error) {
+//     res.status(400).send(error);
+//   }
+// });
 app.get("/purchase", async (req, res) => {
   try {
-    const purchases = await Purchase.find();
+    const purchases = await Purchase.find().populate('pdfDetails');
     res.json(purchases);
   } catch (error) {
     console.error(error);

@@ -3,26 +3,40 @@ import axios from "axios";
 import "./CSS/purchasepage.css";
 import img1 from "./CSS/arka_logo.png";
 import { motion } from "framer-motion";
-import { USER } from "./LoginPage";
+// import { USER } from "./LoginPage";
+import { getUser } from "./LoginPage";
+import { useNavigate } from "react-router";
+
 
 export default function ViewAllPurchasePage() {
+  const navigate = useNavigate();
+  const [USER, setUSER] = useState(getUser());
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setUSER(getUser());
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
   const [purchases, setPurchases] = useState([]);
   const [pdfFileName, setPdfFileName] = useState("");
   useEffect(() => {
     async function fetchPurchases() {
       try {
         const purchaseResponse = await axios.get("http://localhost:5000/purchase");
-        const pdfResponse = await axios.get("http://localhost:5000/get-files");
-        console.log("PDF Response:", pdfResponse.data.data[0].pdf);
-        
-        const purchasesWithData = purchaseResponse.data.map((purchase, index) => {
-          return {
-            ...purchase,
-            file: pdfResponse.data.data[index]?.pdf || null // Assuming each purchase corresponds to a file in the same order
-          };
-        });
-  
-        setPurchases(purchasesWithData);
+        const purchases = purchaseResponse.data.map((purchase) => ({
+          ...purchase,
+          file: purchase.pdfDetails?.pdf || null,
+        }));
+    
+        setPurchases(purchases);
       } catch (error) {
         console.error("Error fetching purchases:", error);
       }
@@ -31,22 +45,49 @@ export default function ViewAllPurchasePage() {
   }, []);
 
   const showPdf = (pdfFileName) => {
-    window.open(
-      `http://localhost:5000/files/${pdfFileName}`,
-      "_blank",
-      "norefferer"
-    );
+    if (pdfFileName) {
+      window.open(
+        `http://localhost:5000/files/${pdfFileName}`,
+        "_blank",
+        "noreferrer"
+      );
+    }
+  };
+
+  const handlehomeredirect = () => {
+    setTimeout(() => {
+      navigate("/home");
+    }, 100);
+  };
+
+  const handleLogout = () => {
+    // setUSER(""); // Update the state to an empty string
+    // setROLE("");
+    // Remove USER from localStorage
+
+    localStorage.removeItem("USER");
+    localStorage.removeItem("ROLE");
+
+    // Redirect to login page
+    setTimeout(() => {
+      navigate("/");
+    }, 800);
   };
 
   return (
     <>
       <div className="App">
-        <header className="header">
-          <div className="header-left">
-            <img src={img1} alt="Logo" className="logo" />
-          </div>
-          <div className="header-right">Hello, {USER}</div>
-        </header>
+      <header className="header">
+        <div onClick={handlehomeredirect} className="header-left">
+          <img src={img1} alt="Cogo" className="logo" />
+        </div>
+        <div className="header-right">
+          Hello, {USER}
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      </header>
 
         <motion.div
           className="py-5 h-100"
@@ -73,8 +114,8 @@ export default function ViewAllPurchasePage() {
                         <th className="table-dark">Project</th>
                         <th className="table-dark">CHIMS File</th>
                         <th className="table-dark">PO/BOM/Quote File</th>
-                        <th className="table-dark">Approval</th>
-                        <th className="table-dark">Action</th>
+                        {/* <th className="table-dark">Approval</th> */}
+                        {/* <th className="table-dark">Action</th> */}
                       </tr>
                     </thead>
                     <tbody>
@@ -96,12 +137,17 @@ export default function ViewAllPurchasePage() {
                             {purchase.project}
                           </td>
                           <td className="table-secondary">
-                            {purchase.chimsFile}
+                          <button
+                               onClick={() => showPdf(purchase.pdfDetails?.pdf)}
+                              className="btn btn-primary file-btn"
+                            >
+                              {purchase.chimsFile}
+                            </button>
                           </td>
                           <td className="table-secondary">
                             {purchase.quoteFile}
                           </td>
-                          <td className="table-secondary">
+                          {/* <td className="table-secondary">
                             <form>
                               <select
                                 className="dropdown"
@@ -113,15 +159,15 @@ export default function ViewAllPurchasePage() {
                                 <option value="Reject">Reject</option>
                               </select>
                             </form>
-                          </td>
-                          <td className="table-secondary">
+                          </td> */}
+                          {/* <td className="table-secondary">
                             <button
-                              onClick={() => showPdf(purchase.file)}
+                               onClick={() => showPdf(purchase.pdfDetails?.pdf)}
                               className="btn btn-primary"
                             >
                               View
                             </button>
-                          </td>
+                          </td> */}
                         </tr>
                       ))}
                     </tbody>
