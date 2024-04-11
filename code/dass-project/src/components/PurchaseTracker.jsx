@@ -10,6 +10,9 @@ import { useNavigate } from "react-router";
 export default function PurchaseTracker() {
   const navigate = useNavigate();
   const [USER, setUSER] = useState(getUser());
+  const [selectedProject, setSelectedProject] = useState("");
+
+  
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -39,6 +42,7 @@ export default function PurchaseTracker() {
     fetchPurchases();
   }, []);
 
+
   const handlehomeredirect = () => {
     setTimeout(() => {
       navigate("/home");
@@ -60,6 +64,15 @@ export default function PurchaseTracker() {
   };
 
   const userPurchases = purchases.filter((purchase) => purchase.user === USER);
+
+  const handleProjectFilterChange = (event) => {
+    setSelectedProject(event.target.value);
+  };
+
+
+  const filteredPurchases = selectedProject
+  ? userPurchases.filter((purchase) => purchase.project === selectedProject)
+  : userPurchases;
 
   return (
     <>
@@ -87,6 +100,24 @@ export default function PurchaseTracker() {
               <div className="card" style={{ borderRadius: 30 }}>
                 <div className="purchase-form p-md-5">
                   <h1 className="mb-md-5 heading">TRACK YOUR PURCHASES</h1>
+                  <div>
+                    <label htmlFor="projectFilter">Filter by Project:</label>
+                    <select
+                      id="projectFilter"
+                      value={selectedProject}
+                      onChange={handleProjectFilterChange}
+                    >
+                      <option value="">All Projects</option>
+                      {Array.from(
+                        new Set(purchases.map((purchase) => purchase.project))
+                      ).map((project) => (
+                        <option key={project} value={project}>
+                          {project}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   <table className="table table-hover">
                     <thead>
                       <tr>
@@ -99,10 +130,11 @@ export default function PurchaseTracker() {
                         <th className="table-dark">Project</th>
                         <th className="table-dark">CHIMS File</th>
                         <th className="table-dark">PO/BOM/Quote File</th>
+                        <th className="table-dark">Approval</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {userPurchases.map((purchase, index) => (
+                      {filteredPurchases.map((purchase, index) => (
                         <tr key={index}>
                           <td className="table-secondary">{index + 1}</td>
                           <td className="table-secondary">{purchase.date}</td>
@@ -124,6 +156,9 @@ export default function PurchaseTracker() {
                           </td>
                           <td className="table-secondary">
                             {purchase.quoteFile}
+                          </td>
+                          <td className="table-secondary">
+                            {purchase.approval}
                           </td>
                         </tr>
                       ))}

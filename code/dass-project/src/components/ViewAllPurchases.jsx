@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import { getUser } from "./LoginPage";
 import { useNavigate } from "react-router";
 
-
 export default function ViewAllPurchasePage() {
   const navigate = useNavigate();
   const [USER, setUSER] = useState(getUser());
@@ -27,15 +26,23 @@ export default function ViewAllPurchasePage() {
 
   const [purchases, setPurchases] = useState([]);
   const [pdfFileName, setPdfFileName] = useState("");
+  const [editingRemarks, setEditingRemarks] = useState({});
+  const [editingBillNos, setEditingBillNos] = useState({});
+  const [editingTrackingNos, setEditingTrackingNos] = useState({});
+
   useEffect(() => {
     async function fetchPurchases() {
       try {
-        const purchaseResponse = await axios.get("http://localhost:5000/purchase");
+        const purchaseResponse = await axios.get(
+          "http://localhost:5000/purchase"
+        );
         const purchases = purchaseResponse.data.map((purchase) => ({
           ...purchase,
           file: purchase.pdfDetails?.pdf || null,
         }));
-    
+        // purchases = purchases.sort((a, b) => new Date(b.date) - new Date(a.date));
+        purchases.sort((a, b) => new Date(b.date) - new Date(a.date));
+
         setPurchases(purchases);
       } catch (error) {
         console.error("Error fetching purchases:", error);
@@ -73,21 +80,146 @@ export default function ViewAllPurchasePage() {
       navigate("/");
     }, 800);
   };
+  const handleRemarkChange = (index, newRemark) => {
+    setEditingRemarks((prevRemarks) => ({
+      ...prevRemarks,
+      [index]: newRemark,
+    }));
+  };
+
+  const handleRemarkSubmit = async (index, purchaseId) => {
+    try {
+      const newRemark = editingRemarks[index];
+      await axios.put(`http://localhost:5000/purchase/${purchaseId}/remark`, {
+        remark: newRemark,
+      });
+      setEditingRemarks((prevRemarks) => ({
+        ...prevRemarks,
+        [index]: undefined,
+      }));
+
+      // Refetch the purchases data
+      const purchaseResponse = await axios.get(
+        "http://localhost:5000/purchase"
+      );
+      const purchases = purchaseResponse.data.map((purchase) => ({
+        ...purchase,
+        file: purchase.pdfDetails?.pdf || null,
+      }));
+
+      setPurchases(purchases);
+    } catch (error) {
+      console.error("Error updating remark:", error);
+    }
+  };
+
+  const handleBillNoChange = (index, newBillNo) => {
+    setEditingBillNos((prevBillNos) => ({
+      ...prevBillNos,
+      [index]: newBillNo,
+    }));
+  };
+
+  const handleBillNoSubmit = async (index, purchaseId) => {
+    try {
+      const newBillNo = editingBillNos[index];
+      await axios.put(`http://localhost:5000/purchase/${purchaseId}/BillNo`, {
+        BillNo: newBillNo,
+      });
+      setEditingBillNos((prevBillNos) => ({
+        ...prevBillNos,
+        [index]: undefined,
+      }));
+
+      const purchaseResponse = await axios.get(
+        "http://localhost:5000/purchase"
+      );
+      const purchases = purchaseResponse.data.map((purchase) => ({
+        ...purchase,
+        file: purchase.pdfDetails?.pdf || null,
+      }));
+
+      setPurchases(purchases);
+    } catch (error) {
+      console.error("Error updating remark:", error);
+    }
+  };
+
+  const handleTrackingNoChange = (index, newTrackingNo) => {
+    setEditingTrackingNos((prevTrackingNos) => ({
+      ...prevTrackingNos,
+      [index]: newTrackingNo,
+    }));
+  };
+
+  const handleTrackingNoSubmit = async (index, purchaseId) => {
+    try {
+      const newTrackingNo = editingTrackingNos[index];
+      await axios.put(
+        `http://localhost:5000/purchase/${purchaseId}/TrackingNo`,
+        {
+          TrackingNo: newTrackingNo,
+        }
+      );
+      setEditingTrackingNos((prevTrackingNos) => ({
+        ...prevTrackingNos,
+        [index]: undefined,
+      }));
+
+      // Refetch the purchases data
+      const purchaseResponse = await axios.get(
+        "http://localhost:5000/purchase"
+      );
+      const purchases = purchaseResponse.data.map((purchase) => ({
+        ...purchase,
+        file: purchase.pdfDetails?.pdf || null,
+      }));
+
+      setPurchases(purchases);
+    } catch (error) {
+      console.error("Error updating TrackingNo:", error);
+    }
+  };
+
+  const handleApprovalChange = async (index, newApproval, purchaseId) => {
+    try {
+      await axios.put(`http://localhost:5000/purchase/${purchaseId}/approval`, {
+        approval: newApproval,
+      });
+
+      // Optionally, you can refetch the purchases data to reflect the updated approval status
+      const purchaseResponse = await axios.get(
+        "http://localhost:5000/purchase"
+      );
+      const purchasesData = purchaseResponse.data;
+
+      // Sort the purchasesData array by date in descending order (newest to oldest)
+      purchasesData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      const purchases = purchaseResponse.data.map((purchase) => ({
+        ...purchase,
+        file: purchase.pdfDetails?.pdf || null,
+      }));
+
+      setPurchases(purchases);
+    } catch (error) {
+      console.error("Error updating approval:", error);
+    }
+  };
 
   return (
     <>
       <div className="App">
-      <header className="header">
-        <div onClick={handlehomeredirect} className="header-left">
-          <img src={img1} alt="Cogo" className="logo" />
-        </div>
-        <div className="header-right">
-          Hello, {USER}
-          <button className="logout-button" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
-      </header>
+        <header className="header">
+          <div onClick={handlehomeredirect} className="header-left">
+            <img src={img1} alt="Cogo" className="logo" />
+          </div>
+          <div className="header-right">
+            Hello, {USER}
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
+        </header>
 
         <motion.div
           className="py-5 h-100"
@@ -114,6 +246,11 @@ export default function ViewAllPurchasePage() {
                         <th className="table-dark">Project</th>
                         <th className="table-dark">CHIMS File</th>
                         <th className="table-dark">PO/BOM/Quote File</th>
+                        <th className="table-dark">Order No</th>
+                        <th className="table-dark">Approval</th>
+                        <th className="table-dark">Bill/Invoice No.</th>
+                        <th className="table-dark">Tracking No.</th>
+
                         {/* <th className="table-dark">Approval</th> */}
                         {/* <th className="table-dark">Action</th> */}
                       </tr>
@@ -137,8 +274,8 @@ export default function ViewAllPurchasePage() {
                             {purchase.project}
                           </td>
                           <td className="table-secondary">
-                          <button
-                               onClick={() => showPdf(purchase.pdfDetails?.pdf)}
+                            <button
+                              onClick={() => showPdf(purchase.pdfDetails?.pdf)}
                               className="btn btn-primary file-btn"
                             >
                               {purchase.chimsFile}
@@ -147,27 +284,133 @@ export default function ViewAllPurchasePage() {
                           <td className="table-secondary">
                             {purchase.quoteFile}
                           </td>
-                          {/* <td className="table-secondary">
-                            <form>
-                              <select
-                                className="dropdown"
-                                name="approval{index}"
-                              >
-                                <option value="Choose">Select Option</option>
-                                <option value="Yes">Yes</option>
-                                <option value="Hold">Hold</option>
-                                <option value="Reject">Reject</option>
-                              </select>
-                            </form>
-                          </td> */}
-                          {/* <td className="table-secondary">
-                            <button
-                               onClick={() => showPdf(purchase.pdfDetails?.pdf)}
-                              className="btn btn-primary"
+                          <td className="table-secondary">
+                            {editingRemarks[index] !== undefined ? (
+                              <div>
+                                <input
+                                  type="text"
+                                  value={editingRemarks[index] || ""}
+                                  onChange={(e) =>
+                                    handleRemarkChange(index, e.target.value)
+                                  }
+                                />
+                                <button
+                                  onClick={() =>
+                                    handleRemarkSubmit(index, purchase._id)
+                                  }
+                                >
+                                  Submit
+                                </button>
+                              </div>
+                            ) : (
+                              <div>
+                                {purchase.remarks}{" "}
+                                {/* Use purchase.remarks instead of purchase.remark */}
+                                <button
+                                  onClick={() =>
+                                    setEditingRemarks((prevRemarks) => ({
+                                      ...prevRemarks,
+                                      [index]: purchase.remarks || "", // Use purchase.remarks instead of purchase.remark
+                                    }))
+                                  }
+                                >
+                                  Edit
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                          <td className="table-secondary">
+                            <select
+                              value={purchase.approval || "Pending"} // Use the existing approval value or "Pending" as the default
+                              onChange={(e) =>
+                                handleApprovalChange(
+                                  index,
+                                  e.target.value,
+                                  purchase._id
+                                )
+                              } // Call a new function to handle approval change
                             >
-                              View
-                            </button>
-                          </td> */}
+                              <option value="Pending">Pending</option>
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                              <option value="Hold">Hold</option>
+                            </select>
+                          </td>
+                          <td className="table-secondary">
+                            {editingBillNos[index] !== undefined ? (
+                              <div>
+                                <input
+                                  type="text"
+                                  value={editingBillNos[index] || ""}
+                                  onChange={(e) =>
+                                    handleBillNoChange(index, e.target.value)
+                                  }
+                                />
+                                <button
+                                  onClick={() =>
+                                    handleBillNoSubmit(index, purchase._id)
+                                  }
+                                >
+                                  Submit
+                                </button>
+                              </div>
+                            ) : (
+                              <div>
+                                {purchase.BillNos}{" "}
+                                {/* Use purchase.BillNos instead of purchase.BillNo */}
+                                <button
+                                  onClick={() =>
+                                    setEditingBillNos((prevBillNos) => ({
+                                      ...prevBillNos,
+                                      [index]: purchase.BillNos || "", // Use purchase.remarks instead of purchase.remark
+                                    }))
+                                  }
+                                >
+                                  Edit
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                          <td className="table-secondary">
+                            {editingTrackingNos[index] !== undefined ? (
+                              <div>
+                                <input
+                                  type="text"
+                                  value={editingTrackingNos[index] || ""}
+                                  onChange={(e) =>
+                                    handleTrackingNoChange(
+                                      index,
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                                <button
+                                  onClick={() =>
+                                    handleTrackingNoSubmit(index, purchase._id)
+                                  }
+                                >
+                                  Submit
+                                </button>
+                              </div>
+                            ) : (
+                              <div>
+                                {purchase.TrackingNos}{" "}
+                                {/* Use purchase.TrackingNos instead of purchase.TrackingNo */}
+                                <button
+                                  onClick={() =>
+                                    setEditingTrackingNos(
+                                      (prevTrackingNos) => ({
+                                        ...prevTrackingNos,
+                                        [index]: purchase.TrackingNos || "", // Use purchase.remarks instead of purchase.remark
+                                      })
+                                    )
+                                  }
+                                >
+                                  Edit
+                                </button>
+                              </div>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>

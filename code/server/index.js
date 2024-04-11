@@ -109,6 +109,10 @@ const purchaseSchema = new mongoose.Schema({
   },
   // chimsFiledata: String,
   // quoteFiledata: String,
+  remarks: { type: String, default: "" },
+  approval: { type: String, default: "Pending" },
+  BillNos: { type: String, default: "" },
+  TrackingNos: { type: String, default: "" },
 });
 
 const Purchase = mongoose.model("Purchase", purchaseSchema);
@@ -119,12 +123,13 @@ app.use(express.json());
 // Handle form submission
 app.post("/purchase", async (req, res) => {
   try {
-    const { pdfDetailsId, ...purchaseData } = req.body;
+    const { pdfDetailsId, remarks, ...purchaseData } = req.body;
 
     // Create a new Purchase document with the pdfDetails reference
     const purchase = new Purchase({
       ...purchaseData,
       pdfDetails: pdfDetailsId, // Pass the pdfDetailsId directly
+      remarks,
     });
     await purchase.save();
 
@@ -143,7 +148,7 @@ app.post("/purchase", async (req, res) => {
 //       ...purchaseData,
 //       pdfDetails: pdfDetailsId,
 //     });
-//     await purchase.save();
+//     await  purchase.save();
 
 //     res.status(201).send(purchase);
 //   } catch (error) {
@@ -152,7 +157,7 @@ app.post("/purchase", async (req, res) => {
 // });
 app.get("/purchase", async (req, res) => {
   try {
-    const purchases = await Purchase.find().populate('pdfDetails');
+    const purchases = await Purchase.find().populate("pdfDetails");
     res.json(purchases);
   } catch (error) {
     console.error(error);
@@ -168,4 +173,91 @@ app.post("/register", (req, res) => {
 });
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
+});
+
+app.put("/purchase/:id/approval", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { approval } = req.body;
+
+    const updatedPurchase = await Purchase.findByIdAndUpdate(
+      id,
+      { approval },
+      { new: true }
+    );
+
+    if (!updatedPurchase) {
+      return res.status(404).json({ message: "Purchase not found" });
+    }
+
+    res.json(updatedPurchase);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.put("/purchase/:id/remark", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { remark } = req.body;
+
+    const updatedPurchase = await Purchase.findByIdAndUpdate(
+      id,
+      { remarks: remark },
+      { new: true }
+    );
+
+    if (!updatedPurchase) {
+      return res.status(404).json({ message: "Purchase not found" });
+    }
+
+    res.json(updatedPurchase);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+app.put("/purchase/:id/BillNo", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { BillNo } = req.body;
+
+    const updatedPurchase = await Purchase.findByIdAndUpdate(
+      id,
+      { BillNos: BillNo },
+      { new: true }
+    );
+
+    if (!updatedPurchase) {
+      return res.status(404).json({ message: "Purchase not found" });
+    }
+
+    res.json(updatedPurchase);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.put("/purchase/:id/TrackingNo", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { TrackingNo } = req.body;
+
+    const updatedPurchase = await Purchase.findByIdAndUpdate(
+      id,
+      { TrackingNos: TrackingNo },
+      { new: true }
+    );
+
+    if (!updatedPurchase) {
+      return res.status(404).json({ message: "Purchase not found" });
+    }
+
+    res.json(updatedPurchase);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 });
