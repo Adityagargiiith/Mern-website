@@ -3,13 +3,15 @@ import axios from "axios";
 import "./CSS/purchasepage.css";
 import img1 from "./CSS/arka_logo.png";
 import { motion } from "framer-motion";
-// import { USER } from "./LoginPage";
 import { getUser } from "./LoginPage";
 import { useNavigate } from "react-router";
 
 export default function ViewAllPurchasePage() {
   const navigate = useNavigate();
   const [USER, setUSER] = useState(getUser());
+  const [purchases, setPurchases] = useState([]);
+  const [selectedPurchases, setSelectedPurchases] = useState([]);
+  const [editableFields, setEditableFields] = useState({});
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -18,17 +20,10 @@ export default function ViewAllPurchasePage() {
 
     window.addEventListener("storage", handleStorageChange);
 
-    // Cleanup function
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
-
-  const [purchases, setPurchases] = useState([]);
-  const [pdfFileName, setPdfFileName] = useState("");
-  const [editingRemarks, setEditingRemarks] = useState({});
-  const [editingBillNos, setEditingBillNos] = useState({});
-  const [editingTrackingNos, setEditingTrackingNos] = useState({});
 
   useEffect(() => {
     async function fetchPurchases() {
@@ -40,9 +35,7 @@ export default function ViewAllPurchasePage() {
           ...purchase,
           file: purchase.pdfDetails?.pdf || null,
         }));
-        // purchases = purchases.sort((a, b) => new Date(b.date) - new Date(a.date));
         purchases.sort((a, b) => new Date(b.date) - new Date(a.date));
-
         setPurchases(purchases);
       } catch (error) {
         console.error("Error fetching purchases:", error);
@@ -68,141 +61,63 @@ export default function ViewAllPurchasePage() {
   };
 
   const handleLogout = () => {
-    // setUSER(""); // Update the state to an empty string
-    // setROLE("");
-    // Remove USER from localStorage
-
     localStorage.removeItem("USER");
     localStorage.removeItem("ROLE");
 
-    // Redirect to login page
     setTimeout(() => {
       navigate("/");
     }, 800);
   };
-  const handleRemarkChange = (index, newRemark) => {
-    setEditingRemarks((prevRemarks) => ({
-      ...prevRemarks,
-      [index]: newRemark,
-    }));
-  };
 
-  const handleRemarkSubmit = async (index, purchaseId) => {
-    try {
-      const newRemark = editingRemarks[index];
-      await axios.put(`http://localhost:5000/purchase/${purchaseId}/remark`, {
-        remark: newRemark,
+  const handleRowDoubleClick = (purchase) => {
+    if (selectedPurchases.some((p) => p._id === purchase._id)) {
+      setSelectedPurchases(selectedPurchases.filter((p) => p._id !== purchase._id));
+      setEditableFields((prevFields) => {
+        const updatedFields = { ...prevFields };
+        delete updatedFields[purchase._id];
+        return updatedFields;
       });
-      setEditingRemarks((prevRemarks) => ({
-        ...prevRemarks,
-        [index]: undefined,
+    } else {
+      setSelectedPurchases([...selectedPurchases, purchase]);
+      setEditableFields((prevFields) => ({
+        ...prevFields,
+        [purchase._id]: {
+          orderNo: purchase.orderNo,
+          approval: purchase.approval,
+          billNo: purchase.billNo,
+          trackingNo: purchase.trackingNo,
+          description: purchase.description,
+          grossamount: purchase.grossamount,
+          netamount: purchase.netamount,
+          paidby: purchase.paidby,
+          recipient: purchase.recipient,
+          datepayment: purchase.datepayment,
+        },
       }));
-
-      // Refetch the purchases data
-      const purchaseResponse = await axios.get(
-        "http://localhost:5000/purchase"
-      );
-      const purchases = purchaseResponse.data.map((purchase) => ({
-        ...purchase,
-        file: purchase.pdfDetails?.pdf || null,
-      }));
-
-      setPurchases(purchases);
-    } catch (error) {
-      console.error("Error updating remark:", error);
     }
   };
 
-  const handleBillNoChange = (index, newBillNo) => {
-    setEditingBillNos((prevBillNos) => ({
-      ...prevBillNos,
-      [index]: newBillNo,
-    }));
-  };
-
-  const handleBillNoSubmit = async (index, purchaseId) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const newBillNo = editingBillNos[index];
-      await axios.put(`http://localhost:5000/purchase/${purchaseId}/BillNo`, {
-        BillNo: newBillNo,
-      });
-      setEditingBillNos((prevBillNos) => ({
-        ...prevBillNos,
-        [index]: undefined,
-      }));
-
-      const purchaseResponse = await axios.get(
-        "http://localhost:5000/purchase"
+      const updatedPurchases = await Promise.all(
+        selectedPurchases.map(async (purchase) => {
+          const response = await axios.put(
+            `http://localhost:5000/purchase/${purchase._id}`,
+            editableFields[purchase._id]
+          );
+          return { ...purchase, ...response.data };
+        })
       );
-      const purchases = purchaseResponse.data.map((purchase) => ({
-        ...purchase,
-        file: purchase.pdfDetails?.pdf || null,
-      }));
-
-      setPurchases(purchases);
+      setPurchases(
+        purchases.map((purchase) =>
+          updatedPurchases.find((p) => p._id === purchase._id) || purchase
+        )
+      );
+      setSelectedPurchases([]);
+      setEditableFields({});
     } catch (error) {
-      console.error("Error updating remark:", error);
-    }
-  };
-
-  const handleTrackingNoChange = (index, newTrackingNo) => {
-    setEditingTrackingNos((prevTrackingNos) => ({
-      ...prevTrackingNos,
-      [index]: newTrackingNo,
-    }));
-  };
-
-  const handleTrackingNoSubmit = async (index, purchaseId) => {
-    try {
-      const newTrackingNo = editingTrackingNos[index];
-      await axios.put(
-        `http://localhost:5000/purchase/${purchaseId}/TrackingNo`,
-        {
-          TrackingNo: newTrackingNo,
-        }
-      );
-      setEditingTrackingNos((prevTrackingNos) => ({
-        ...prevTrackingNos,
-        [index]: undefined,
-      }));
-
-      // Refetch the purchases data
-      const purchaseResponse = await axios.get(
-        "http://localhost:5000/purchase"
-      );
-      const purchases = purchaseResponse.data.map((purchase) => ({
-        ...purchase,
-        file: purchase.pdfDetails?.pdf || null,
-      }));
-
-      setPurchases(purchases);
-    } catch (error) {
-      console.error("Error updating TrackingNo:", error);
-    }
-  };
-
-  const handleApprovalChange = async (index, newApproval, purchaseId) => {
-    try {
-      await axios.put(`http://localhost:5000/purchase/${purchaseId}/approval`, {
-        approval: newApproval,
-      });
-
-      // Optionally, you can refetch the purchases data to reflect the updated approval status
-      const purchaseResponse = await axios.get(
-        "http://localhost:5000/purchase"
-      );
-      const purchasesData = purchaseResponse.data;
-
-      // Sort the purchasesData array by date in descending order (newest to oldest)
-      purchasesData.sort((a, b) => new Date(b.date) - new Date(a.date));
-      const purchases = purchaseResponse.data.map((purchase) => ({
-        ...purchase,
-        file: purchase.pdfDetails?.pdf || null,
-      }));
-
-      setPurchases(purchases);
-    } catch (error) {
-      console.error("Error updating approval:", error);
+      console.error("Error updating purchases:", error);
     }
   };
 
@@ -248,16 +163,27 @@ export default function ViewAllPurchasePage() {
                         <th className="table-dark">PO/BOM/Quote File</th>
                         <th className="table-dark">Order No</th>
                         <th className="table-dark">Approval</th>
-                        <th className="table-dark">Bill/Invoice No.</th>
-                        <th className="table-dark">Tracking No.</th>
-
-                        {/* <th className="table-dark">Approval</th> */}
-                        {/* <th className="table-dark">Action</th> */}
+                        <th className="table-dark">Bill No</th>
+                        <th className="table-dark">Tracking No</th>
+                        <th className="table-dark">Description</th>
+                        <th className="table-dark">Gross Amount</th>
+                        <th className="table-dark">Net Amount</th>
+                        <th className="table-dark">Paid By</th>
+                        <th className="table-dark">Recipient</th>
+                        <th className="table-dark">Date of Payment</th>
                       </tr>
                     </thead>
                     <tbody>
                       {purchases.map((purchase, index) => (
-                        <tr key={index}>
+                        <tr
+                          key={index}
+                          onDoubleClick={() => handleRowDoubleClick(purchase)}
+                          className={
+                            selectedPurchases.some((p) => p._id === purchase._id)
+                              ? 'selected-row'
+                              : ''
+                          }
+                        >
                           <td className="table-secondary">{index + 1}</td>
                           <td className="table-secondary">{purchase.date}</td>
                           <td className="table-secondary">{purchase.team}</td>
@@ -285,136 +211,236 @@ export default function ViewAllPurchasePage() {
                             {purchase.quoteFile}
                           </td>
                           <td className="table-secondary">
-                            {editingRemarks[index] !== undefined ? (
-                              <div>
-                                <input
-                                  type="text"
-                                  value={editingRemarks[index] || ""}
-                                  onChange={(e) =>
-                                    handleRemarkChange(index, e.target.value)
-                                  }
-                                />
-                                <button
-                                  onClick={() =>
-                                    handleRemarkSubmit(index, purchase._id)
-                                  }
-                                >
-                                  Submit
-                                </button>
-                              </div>
+                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                              <input
+                                type="text"
+                                value={
+                                  editableFields[purchase._id]?.orderNo ||
+                                  purchase.orderNo
+                                }
+                                onChange={(e) =>
+                                  setEditableFields((prevFields) => ({
+                                    ...prevFields,
+                                    [purchase._id]: {
+                                      ...prevFields[purchase._id],
+                                      orderNo: e.target.value,
+                                    },
+                                  }))
+                                }
+                              />
                             ) : (
-                              <div>
-                                {purchase.remarks}{" "}
-                                {/* Use purchase.remarks instead of purchase.remark */}
-                                <button
-                                  onClick={() =>
-                                    setEditingRemarks((prevRemarks) => ({
-                                      ...prevRemarks,
-                                      [index]: purchase.remarks || "", // Use purchase.remarks instead of purchase.remark
-                                    }))
-                                  }
-                                >
-                                  Edit
-                                </button>
-                              </div>
+                              purchase.orderNo
                             )}
                           </td>
                           <td className="table-secondary">
-                            <select
-                              value={purchase.approval || "Pending"} // Use the existing approval value or "Pending" as the default
-                              onChange={(e) =>
-                                handleApprovalChange(
-                                  index,
-                                  e.target.value,
-                                  purchase._id
-                                )
-                              } // Call a new function to handle approval change
-                            >
-                              <option value="Pending">Pending</option>
-                              <option value="Yes">Yes</option>
-                              <option value="No">No</option>
-                              <option value="Hold">Hold</option>
-                            </select>
-                          </td>
-                          <td className="table-secondary">
-                            {editingBillNos[index] !== undefined ? (
-                              <div>
-                                <input
-                                  type="text"
-                                  value={editingBillNos[index] || ""}
-                                  onChange={(e) =>
-                                    handleBillNoChange(index, e.target.value)
-                                  }
-                                />
-                                <button
-                                  onClick={() =>
-                                    handleBillNoSubmit(index, purchase._id)
-                                  }
-                                >
-                                  Submit
-                                </button>
-                              </div>
+                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                              <input
+                                type="text"
+                                value={
+                                  editableFields[purchase._id]?.approval ||
+                                  purchase.approval
+                                }
+                                onChange={(e) =>
+                                  setEditableFields((prevFields) => ({
+                                    ...prevFields,
+                                    [purchase._id]: {
+                                      ...prevFields[purchase._id],
+                                      approval: e.target.value,
+                                    },
+                                  }))
+                                }
+                              />
                             ) : (
-                              <div>
-                                {purchase.BillNos}{" "}
-                                {/* Use purchase.BillNos instead of purchase.BillNo */}
-                                <button
-                                  onClick={() =>
-                                    setEditingBillNos((prevBillNos) => ({
-                                      ...prevBillNos,
-                                      [index]: purchase.BillNos || "", // Use purchase.remarks instead of purchase.remark
-                                    }))
-                                  }
-                                >
-                                  Edit
-                                </button>
-                              </div>
+                              purchase.approval
                             )}
                           </td>
                           <td className="table-secondary">
-                            {editingTrackingNos[index] !== undefined ? (
-                              <div>
-                                <input
-                                  type="text"
-                                  value={editingTrackingNos[index] || ""}
-                                  onChange={(e) =>
-                                    handleTrackingNoChange(
-                                      index,
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                                <button
-                                  onClick={() =>
-                                    handleTrackingNoSubmit(index, purchase._id)
-                                  }
-                                >
-                                  Submit
-                                </button>
-                              </div>
+                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                              <input
+                                type="text"
+                                value={
+                                  editableFields[purchase._id]?.billNo ||
+                                  purchase.billNo
+                                }
+                                onChange={(e) =>
+                                  setEditableFields((prevFields) => ({
+                                    ...prevFields,
+                                    [purchase._id]: {
+                                      ...prevFields[purchase._id],
+                                      billNo: e.target.value,
+                                    },
+                                  }))
+                                }
+                              />
                             ) : (
-                              <div>
-                                {purchase.TrackingNos}{" "}
-                                {/* Use purchase.TrackingNos instead of purchase.TrackingNo */}
-                                <button
-                                  onClick={() =>
-                                    setEditingTrackingNos(
-                                      (prevTrackingNos) => ({
-                                        ...prevTrackingNos,
-                                        [index]: purchase.TrackingNos || "", // Use purchase.remarks instead of purchase.remark
-                                      })
-                                    )
-                                  }
-                                >
-                                  Edit
-                                </button>
-                              </div>
+                              purchase.billNo
+                            )}
+                          </td>
+                          <td className="table-secondary">
+                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                              <input
+                                type="text"
+                                value={
+                                  editableFields[purchase._id]?.trackingNo ||
+                                  purchase.trackingNo
+                                }
+                                onChange={(e) =>
+                                  setEditableFields((prevFields) => ({
+                                    ...prevFields,
+                                    [purchase._id]: {
+                                      ...prevFields[purchase._id],
+                                      trackingNo: e.target.value,
+                                    },
+                                  }))
+                                }
+                              />
+                            ) : (
+                              purchase.trackingNo
+                            )}
+                          </td>
+                          <td className="table-secondary">
+                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                              <input
+                                type="text"
+                                value={
+                                  editableFields[purchase._id]?.description ||
+                                  purchase.description
+                                }
+                                onChange={(e) =>
+                                  setEditableFields((prevFields) => ({
+                                    ...prevFields,
+                                    [purchase._id]: {
+                                      ...prevFields[purchase._id],
+                                      description: e.target.value,
+                                    },
+                                  }))
+                                }
+                              />
+                            ) : (
+                              purchase.description
+                            )}
+                          </td>
+                          <td className="table-secondary">
+                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                              <input
+                                type="text"
+                                value={
+                                  editableFields[purchase._id]?.grossamount ||
+                                  purchase.grossamount
+                                }
+                                onChange={(e) =>
+                                  setEditableFields((prevFields) => ({
+                                    ...prevFields,
+                                    [purchase._id]: {
+                                      ...prevFields[purchase._id],
+                                      grossamount: e.target.value,
+                                    },
+                                  }))
+                                }
+                              />
+                            ) : (
+                              purchase.grossamount
+                            )}
+                          </td>
+                          <td className="table-secondary">
+                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                              <input
+                                type="text"
+                                value={
+                                  editableFields[purchase._id]?.netamount ||
+                                  purchase.netamount
+                                }
+                                onChange={(e) =>
+                                  setEditableFields((prevFields) => ({
+                                    ...prevFields,
+                                    [purchase._id]: {
+                                      ...prevFields[purchase._id],
+                                      netamount: e.target.value,
+                                    },
+                                  }))
+                                }
+                              />
+                            ) : (
+                              purchase.netamount
+                            )}
+                          </td>
+                          <td className="table-secondary">
+                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                              <input
+                                type="text"
+                                value={
+                                  editableFields[purchase._id]?.paidby ||
+                                  purchase.paidby
+                                }
+                                onChange={(e) =>
+                                  setEditableFields((prevFields) => ({
+                                    ...prevFields,
+                                    [purchase._id]: {
+                                      ...prevFields[purchase._id],
+                                      paidby: e.target.value,
+                                    },
+                                  }))
+                                }
+                              />
+                            ) : (
+                              purchase.paidby
+                            )}
+                          </td>
+                          <td className="table-secondary">
+                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                              <input
+                                type="text"
+                                value={
+                                  editableFields[purchase._id]?.recipient ||
+                                  purchase.recipient
+                                }
+                                onChange={(e) =>
+                                  setEditableFields((prevFields) => ({
+                                    ...prevFields,
+                                    [purchase._id]: {
+                                      ...prevFields[purchase._id],
+                                      recipient: e.target.value,
+                                    },
+                                  }))
+                                }
+                              />
+                            ) : (
+                              purchase.recipient
+                            )}
+                          </td>
+                          <td className="table-secondary">
+                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                              <input
+                                type="text"
+                                value={
+                                  editableFields[purchase._id]?.datepayment ||
+                                  purchase.datepayment
+                                }
+                                onChange={(e) =>
+                                  setEditableFields((prevFields) => ({
+                                    ...prevFields,
+                                    [purchase._id]: {
+                                      ...prevFields[purchase._id],
+                                      datepayment: e.target.value,
+                                    },
+                                  }))
+                                }
+                              />
+                            ) : (
+                              purchase.datepayment
                             )}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                  {selectedPurchases.length > 0 && (
+                    <div className="edit-form">
+                      <button type="submit" onClick={handleSubmit}>
+                        Save
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

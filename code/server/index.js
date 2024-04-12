@@ -109,10 +109,17 @@ const purchaseSchema = new mongoose.Schema({
   },
   // chimsFiledata: String,
   // quoteFiledata: String,
-  remarks: { type: String, default: "" },
   approval: { type: String, default: "Pending" },
-  BillNos: { type: String, default: "" },
-  TrackingNos: { type: String, default: "" },
+  orderNo: { type: String, default: "" },
+  billNo: { type: String, default: "" },
+  trackingNo: { type: String, default: "" },
+  description: { type: String, default: "" },
+  grossamount: { type: String, default: "" },
+  netamount: { type: String, default: "" },
+  paidby: { type: String, default: "" },
+  recipient: { type: String, default: "" },
+  datepayment: { type: String, default: "" },
+
 });
 
 const Purchase = mongoose.model("Purchase", purchaseSchema);
@@ -175,79 +182,26 @@ app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
 
-app.put("/purchase/:id/approval", async (req, res) => {
+
+app.put("/purchase/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { approval } = req.body;
+    const { orderNo, approval, billNo, trackingNo,description,grossamount,netamount,paidby,recipient,datepayment } = req.body;
 
     const updatedPurchase = await Purchase.findByIdAndUpdate(
       id,
-      { approval },
-      { new: true }
-    );
-
-    if (!updatedPurchase) {
-      return res.status(404).json({ message: "Purchase not found" });
-    }
-
-    res.json(updatedPurchase);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-app.put("/purchase/:id/remark", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { remark } = req.body;
-
-    const updatedPurchase = await Purchase.findByIdAndUpdate(
-      id,
-      { remarks: remark },
-      { new: true }
-    );
-
-    if (!updatedPurchase) {
-      return res.status(404).json({ message: "Purchase not found" });
-    }
-
-    res.json(updatedPurchase);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-app.put("/purchase/:id/BillNo", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { BillNo } = req.body;
-
-    const updatedPurchase = await Purchase.findByIdAndUpdate(
-      id,
-      { BillNos: BillNo },
-      { new: true }
-    );
-
-    if (!updatedPurchase) {
-      return res.status(404).json({ message: "Purchase not found" });
-    }
-
-    res.json(updatedPurchase);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-app.put("/purchase/:id/TrackingNo", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { TrackingNo } = req.body;
-
-    const updatedPurchase = await Purchase.findByIdAndUpdate(
-      id,
-      { TrackingNos: TrackingNo },
+      {
+        orderNo,
+        approval,
+        billNo,
+        trackingNo,
+        description,
+        grossamount,
+        netamount,
+        paidby,
+        recipient,
+        datepayment,
+      },
       { new: true }
     );
 
