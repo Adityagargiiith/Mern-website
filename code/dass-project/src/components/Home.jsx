@@ -98,6 +98,12 @@ export default function Home() {
             Book a slot for Drone Testing
           </button>
         </Link>
+        <span style={{ marginRight: "300px" }}></span>
+        <Link to="/search">
+          <button className="button drone-button" img="./CSS/drone.jpg" >
+            Search for tools
+          </button>
+        </Link>
       </motion.div>
       <main className="main-content">
         <br />

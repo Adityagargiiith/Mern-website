@@ -9,6 +9,7 @@ import PurchaseTracker from "./PurchaseTracker";
 import LoginPage from "./LoginPage";
 // import { USER, ROLE } from "./LoginPage";
 import { getUser, getRole } from "./LoginPage";
+import Search from "./search";
 // const USER = localStorage.getItem("USER") || "";
 // const ROLE = localStorage.getItem("ROLE") || "";
 // console.log(USER);
@@ -75,7 +76,17 @@ function AnimatedRoutes() {
           </PrivateRoute>
         }
       />
+      <Route
+        path="/search"
+        element={
+          <PrivateRoute>
+            <Search/>
+          </PrivateRoute>
+        }
+      />
     </Routes>
+    
+    
   );
 }
 
