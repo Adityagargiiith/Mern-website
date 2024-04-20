@@ -104,6 +104,12 @@ export default function Home() {
             Search for tools
           </button>
         </Link>
+        <span style={{ marginRight: "300px" }}></span>
+        <Link to="/leave-page">
+          <button className="button drone-button" img="./CSS/drone.jpg">
+            Apply/Check Leave
+          </button>
+        </Link>
       </motion.div>
       <main className="main-content">
         <br />

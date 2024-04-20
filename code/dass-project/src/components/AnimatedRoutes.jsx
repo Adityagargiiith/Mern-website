@@ -10,6 +10,10 @@ import LoginPage from "./LoginPage";
 // import { USER, ROLE } from "./LoginPage";
 import { getUser, getRole } from "./LoginPage";
 import Search from "./search";
+import LeaveApplicationForm from "./leaveapplication";
+import Viewallleaves from "./Viewallleaves"
+import Viewyourleaves from "./viewyourleaves";
+import LeaveOptions from "./leaveoptions";
 // const USER = localStorage.getItem("USER") || "";
 // const ROLE = localStorage.getItem("ROLE") || "";
 // console.log(USER);
@@ -41,6 +45,14 @@ function AnimatedRoutes() {
         element={
           <PrivateRoute>
             <PurchaseOptions />
+          </PrivateRoute>
+        }
+      />
+       <Route
+        path="/leave-page"
+        element={
+          <PrivateRoute>
+            <LeaveOptions  />
           </PrivateRoute>
         }
       />
@@ -81,6 +93,30 @@ function AnimatedRoutes() {
         element={
           <PrivateRoute>
             <Search/>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/leaveapplication"
+        element={
+          <PrivateRoute>
+            <LeaveApplicationForm  />{" "}
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/viewallleaves"
+        element={
+          <PrivateRoute>
+            <Viewallleaves />{" "}
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/viewyourleaves"
+        element={
+          <PrivateRoute>
+            <Viewyourleaves />{" "}
           </PrivateRoute>
         }
       />

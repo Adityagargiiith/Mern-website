@@ -215,3 +215,68 @@ app.put("/purchase/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+const leaveApplicationSchema = new mongoose.Schema({
+  userName: String,
+  startDate: String,
+  endDate: String,
+  leaveType: String,
+  reason: String,
+  status: { type: String, default: 'Pending' },
+  createdAt: { type: Date, default: Date.now },
+});
+
+const LeaveApplication = mongoose.model('LeaveApplication', leaveApplicationSchema);
+
+app.post('/leave-application', async (req, res) => {
+  try {
+    const { startDate, endDate, leaveType, reason, userName } = req.body;
+    // Assuming you're sending the user's name in the request body
+
+    const newLeaveApplication = new LeaveApplication({
+      userName,
+      startDate,
+      endDate,
+      leaveType,
+      reason,
+    });
+
+    const savedLeaveApplication = await newLeaveApplication.save();
+    res.status(201).json(savedLeaveApplication);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/leave-applications', async (req, res) => {
+  try {
+    const leaveApplications = await LeaveApplication.find();
+    res.json(leaveApplications);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.put('/leave-applications/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const updatedLeaveApplication = await LeaveApplication.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedLeaveApplication) {
+      return res.status(404).json({ message: 'Leave application not found' });
+    }
+
+    res.json(updatedLeaveApplication);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
