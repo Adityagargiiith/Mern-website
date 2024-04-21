@@ -33,7 +33,8 @@ export default function PurchaseTracker() {
     async function fetchPurchases() {
       try {
         const response = await axios.get("http://localhost:5000/purchase");
-        setPurchases(response.data);
+        setPurchases(response.data.reverse());
+        
       } catch (error) {
         console.error("Error fetching purchases:", error);
       }
@@ -74,6 +75,10 @@ export default function PurchaseTracker() {
   ? userPurchases.filter((purchase) => purchase.project === selectedProject)
   : userPurchases;
 
+  const handleLinkBtn = (link) => {
+    window.open(link, "_blank");
+  };
+
   return (
     <>
       <div className="App">
@@ -95,17 +100,18 @@ export default function PurchaseTracker() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <div className="align-center">
+          <div>
             <div className="col-12 col-lg-9 col-xl-7">
-              <div className="card" style={{ borderRadius: 30 }}>
+              <div className="carde" style={{ borderRadius: 30 }}>
                 <div className="purchase-form p-md-5">
                   <h1 className="mb-md-5 heading">TRACK YOUR PURCHASES</h1>
                   <div>
-                    <label htmlFor="projectFilter">Filter by Project:</label>
+                    <label htmlFor="projectFilter">Filter by Project: &nbsp;</label>
                     <select
                       id="projectFilter"
                       value={selectedProject}
                       onChange={handleProjectFilterChange}
+                      className="filter-button"
                     >
                       <option value="">All Projects</option>
                       {Array.from(
@@ -117,20 +123,19 @@ export default function PurchaseTracker() {
                       ))}
                     </select>
                   </div>
-
+                  <br />
                   <table className="table table-hover">
                     <thead>
                       <tr>
                         <th className="table-dark">S. No.</th>
-                        <th className="table-dark">Date and Time</th>
+                        <th className="table-dark">Entry Date</th>
                         <th className="table-dark">Team</th>
-                        <th className="table-dark fixed-column">Link to Purchase</th>
+                        <th className="table-dark fixed-column" style={{ minWidth: 129 }}>Link to Purchase</th>
                         <th className="table-dark">Component Name</th>
                         <th className="table-dark">Quantity</th>
                         <th className="table-dark">Project</th>
-                        <th className="table-dark">CHIMS File</th>
-                        <th className="table-dark">PO/BOM/Quote File</th>
                         <th className="table-dark">Approval</th>
+                        <th className="table-dark">Arrival</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -140,7 +145,14 @@ export default function PurchaseTracker() {
                           <td className="table-secondary">{purchase.date}</td>
                           <td className="table-secondary">{purchase.team}</td>
                           <td className="table-secondary fixed-column">
-                            {purchase.linkToPurchase}
+                          <button
+                              onClick={() =>
+                                handleLinkBtn(purchase.linkToPurchase)
+                              }
+                              className="btn btn-primary file-btn"
+                            >
+                              Open Link
+                            </button>
                           </td>
                           <td className="table-secondary">
                             {purchase.componentName}
@@ -152,13 +164,10 @@ export default function PurchaseTracker() {
                             {purchase.project}
                           </td>
                           <td className="table-secondary">
-                            {purchase.chimsFile}
-                          </td>
-                          <td className="table-secondary">
-                            {purchase.quoteFile}
-                          </td>
-                          <td className="table-secondary">
                             {purchase.approval}
+                          </td>
+                          <td className="table-secondary">
+                            {purchase.arrival}
                           </td>
                         </tr>
                       ))}

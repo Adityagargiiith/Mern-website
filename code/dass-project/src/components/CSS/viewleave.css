@@ -1,30 +1,30 @@
 /* Table Styles */
-table {
+.tableT {
     width: 100%;
     border-collapse: collapse;
     font-family: Arial, sans-serif;
     color:white;
   }
   
-  th, td {
+  .rowT {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #ddd;
   }
   
-  th {
+  .Thead {
     background-color: #4CAF50;
     color: white;
   }
   
  
   
-  tr:hover {
+  .Tsimp:hover {
     background-color: green;
   }
   
   /* Button Styles */
-  button {
+  .buttonT {
     padding: 8px 12px;
     margin: 4px;
     background-color: #4CAF50;
@@ -34,7 +34,7 @@ table {
     cursor: pointer;
   }
   
-  button:hover {
+  .buttonT:hover {
     background-color: #45a049;
   }
   
@@ -47,15 +47,15 @@ table {
   }
   
   @media (max-width: 768px) {
-    table {
+    .tableT {
       font-size: 14px;
     }
   
-    th, td {
+    .rowT {
       padding: 8px;
     }
   
-    button {
+    .buttonT {
       padding: 6px 10px;
       font-size: 12px;
     }

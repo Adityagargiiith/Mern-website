@@ -8,11 +8,10 @@ const bodyParser = require("body-parser");
 const e = require("express");
 const employeemodel = require("./employee");
 const multer = require("multer");
-// const multer = require("multer");
+const nodemailer = require("nodemailer");
 app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/files", express.static("files"));
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -27,8 +26,10 @@ const storage = multer.diskStorage({
 // require("./pdfDetails");
 const PdfDetailsSchema = new mongoose.Schema(
   {
-    pdf: String,
-    title: String,
+    cpdf: String,
+    ctitle: String,
+    qpdf: String,
+    qtitle: String,
   },
   { collection: "PdfDetails" }
 );
@@ -39,21 +40,37 @@ const PdfSchema = mongoose.model("PdfDetails", PdfDetailsSchema);
 const upload = multer({ storage: storage });
 
 // const upload = multer({ dest: "./files" });
-app.post("/upload-files", upload.single("chimsFile2"), async (req, res) => {
-  console.log(req.file);
-  // res.send(req.file);
-  const title = req.file.originalname;
-  const pdf = req.file.filename;
-  console.log(title);
-  console.log(pdf);
-  try {
-    const pdfDetails = new PdfSchema({ pdf, title });
-    await pdfDetails.save();
-    res.status(201).send({ pdfDetailsId: pdfDetails._id, pdfDetails });
-  } catch (error) {
-    res.status(400).send;
+app.post(
+  "/upload-files",
+  upload.fields([
+    { name: "chimsFile2", maxCount: 1 },
+    { name: "quoteFile", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    console.log(req.files);
+    const chimsFile2 = req.files["chimsFile2"][0];
+    const quoteFile = req.files["quoteFile"][0];
+
+    const chimsTitle = chimsFile2.originalname;
+    const chimsPdf = chimsFile2.filename;
+
+    const quoteTitle = quoteFile.originalname;
+    const quotePdf = quoteFile.filename;
+
+    try {
+      const pdfDetails = new PdfSchema({
+        cpdf: chimsPdf,
+        ctitle: chimsTitle,
+        qpdf: quotePdf,
+        qtitle: quoteTitle,
+      });
+      await pdfDetails.save();
+      res.status(201).send({ pdfDetailsId: pdfDetails._id, pdfDetails });
+    } catch (error) {
+      res.status(400).send;
+    }
   }
-});
+);
 app.get("/get-files", async (req, res) => {
   try {
     PdfSchema.find({}).then((data) => {
@@ -93,6 +110,15 @@ app.post("/login", (req, res) => {
     });
 });
 
+const ticketSchema = new mongoose.Schema({
+  user: String,
+  date: String,
+  team: String,
+  project: String,
+  slotDate: String,
+  slotTime: String,
+});
+
 const purchaseSchema = new mongoose.Schema({
   user: String,
   date: String,
@@ -110,6 +136,7 @@ const purchaseSchema = new mongoose.Schema({
   // chimsFiledata: String,
   // quoteFiledata: String,
   approval: { type: String, default: "Pending" },
+  arrival: { type: String, default: "No" },
   orderNo: { type: String, default: "" },
   billNo: { type: String, default: "" },
   trackingNo: { type: String, default: "" },
@@ -119,15 +146,30 @@ const purchaseSchema = new mongoose.Schema({
   paidby: { type: String, default: "" },
   recipient: { type: String, default: "" },
   datepayment: { type: String, default: "" },
-
 });
 
 const Purchase = mongoose.model("Purchase", purchaseSchema);
+const Ticket = mongoose.model("Ticket", ticketSchema);
 
 app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
 // Handle form submission
+app.post("/ticket", async (req, res) => {
+  try {
+    const { ...ticketData } = req.body;
+
+    const ticket = new Ticket ({
+      ...ticketData,
+    });
+    await ticket.save();
+
+    res.status(201).send(ticket);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
 app.post("/purchase", async (req, res) => {
   try {
     const { pdfDetailsId, remarks, ...purchaseData } = req.body;
@@ -146,22 +188,16 @@ app.post("/purchase", async (req, res) => {
   }
 });
 
-// app.post("/purchase", async (req, res) => {
-//   try {
-//     const { pdfDetailsId, ...purchaseData } = req.body;
+app.get("/ticket", async (req, res) => {
+  try {
+    const tickets = await Ticket.find();
+    res.json(tickets);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
-//     // Create a new Purchase document with the pdfDetails reference
-//     const purchase = new Purchase({
-//       ...purchaseData,
-//       pdfDetails: pdfDetailsId,
-//     });
-//     await  purchase.save();
-
-//     res.status(201).send(purchase);
-//   } catch (error) {
-//     res.status(400).send(error);
-//   }
-// });
 app.get("/purchase", async (req, res) => {
   try {
     const purchases = await Purchase.find().populate("pdfDetails");
@@ -182,17 +218,29 @@ app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
 
-
 app.put("/purchase/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { orderNo, approval, billNo, trackingNo,description,grossamount,netamount,paidby,recipient,datepayment } = req.body;
+    const {
+      orderNo,
+      approval,
+      arrival,
+      billNo,
+      trackingNo,
+      description,
+      grossamount,
+      netamount,
+      paidby,
+      recipient,
+      datepayment,
+    } = req.body;
 
     const updatedPurchase = await Purchase.findByIdAndUpdate(
       id,
       {
         orderNo,
         approval,
+        arrival,
         billNo,
         trackingNo,
         description,
@@ -212,6 +260,78 @@ app.put("/purchase/:id", async (req, res) => {
     res.json(updatedPurchase);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/sendmail", async (req, res) => {
+  try {
+    const { componentName, user, email } = req.body;
+    // console.log(componentName, user, email);
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+          user: 'dasstest324@gmail.com',
+          pass: 'paxfdszdwqemdyjd'
+      }
+    });
+
+    async function main() {
+      const info = await transporter.sendMail({
+        from: '"Test Dass" <dasstest324@gmail.com>',
+        to: "agrimmittal2004@gmail.com",
+        subject: "Order Arrived!",
+        html: `<p>Dear ${user},</p><br><p>Your order for ${componentName} has arrived! Collect it from the Order Collection Desk.</p><br><b>Arka Aerospace 2024</b>`,
+      });
+
+      console.log("Message sent: %s", info.messageId);
+      res.status(200).json({ message: "Email sent successfully" });
+    }
+
+    main().catch(error => {
+      console.error("Error sending email:", error);
+      res.status(500).json({ message: "Failed to send email" });
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/leave-mail", async (req, res) => {
+  try {
+    const { user } = req.body;
+    // console.log(componentName, user, email);
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+          user: 'dasstest324@gmail.com',
+          pass: 'paxfdszdwqemdyjd'
+      }
+    });
+
+    async function main() {
+      const info = await transporter.sendMail({
+        from: '"Test Dass" <dasstest324@gmail.com>',
+        to: "agrimmittal2004@gmail.com",
+        subject: "Leave Approved!",
+        html: `<p>Dear ${user},</p><br><p>Your leave has been approved.<br><br> See you soon :)</p><br><b>Arka Aerospace 2024</b>`,
+      });
+
+      console.log("Message sent: %s", info.messageId);
+      res.status(200).json({ message: "Email sent successfully" });
+    }
+
+    main().catch(error => {
+      console.error("Error sending email:", error);
+      res.status(500).json({ message: "Failed to send email" });
+    });
+  } catch (error) {
+    console.error("Server error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -279,4 +399,23 @@ app.put('/leave-applications/:id', async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
+});
+
+// Search
+
+app.get("/amazon-search", async (req, res) => {
+  const searchTerm = req.query.k;
+  try {
+    const url = `https://www.amazon.in/s?k=${encodeURIComponent(searchTerm)}`;
+    const response = await axios.get(url);
+    res.send(response.data);
+  } catch (error) {
+    console.error("Error fetching Amazon search results:", error);
+    res.status(500).send("Error fetching Amazon search results");
+  }
+});
+
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

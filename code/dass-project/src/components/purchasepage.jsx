@@ -4,10 +4,7 @@ import axios from "axios";
 import "./CSS/purchasepage.css";
 import img1 from "./CSS/arka_logo.png";
 import { motion } from "framer-motion";
-// import { USER } from "./LoginPage";
-import e from "cors";
 import { getUser } from "./LoginPage";
-import { set } from "mongoose";
 
 const getCurrDate = () => {
   let currDate = new Date();
@@ -51,7 +48,7 @@ export default function PurchasePage() {
   });
 
   const handleChange = (e) => {
-    const { name, value, type, checked, files } = e.target;
+    const { name, value, type, checked } = e.target;
 
     // Check if the input is a radio button
     const radioValue = checked ? value : "";
@@ -104,8 +101,8 @@ export default function PurchasePage() {
 
   const [chimsFile2, setChimsFile] = useState("");
   const [chimsFile2title, setChimsFileTitle] = useState("");
-  // const [quoteFile, setQuoteFile] = useState("");
-  // const [quoteFileTitle, setQuoteFileTitle] = useState("");
+  const [quoteFile, setQuoteFile] = useState("");
+  const [quoteFileTitle, setQuoteFileTitle] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -119,8 +116,8 @@ export default function PurchasePage() {
       // Append file data
       formDataToSend.append("chimsFile2", chimsFile2);
       formDataToSend.append("chimsFile2title", chimsFile2title);
-      // formDataToSend.append("quoteFile", quoteFile);
-      // formDataToSend.append("quoteFileTitle", quoteFileTitle);
+      formDataToSend.append("quoteFile", quoteFile);
+      formDataToSend.append("quoteFileTitle", quoteFileTitle);
 
       try {
         // Upload the file and get the PdfDetails ObjectId
@@ -274,7 +271,7 @@ export default function PurchasePage() {
                             onChange={handleChange}
                             required
                           >
-                            <option value="" className="dropdown-option">
+                            <option value="" className="dropdown-option" disabled>
                               Select team
                             </option>
                             {teams.map((team, index) => (
@@ -323,12 +320,12 @@ export default function PurchasePage() {
                             id="quoteFile"
                             className="form-control form-control-lg-lg fileee"
                             style={{ width: "600px" }}
-                            // onChange={(e) => {
-                            //   handleFileChange(e);
-                            //   setQuoteFile(e.target.files[0]);
-                            //   setQuoteFileTitle(e.target.files[0].name);
-                            // }}
-                            onChange={handleFileChange}
+                            onChange={(e) => {
+                              handleFileChange(e);
+                              setQuoteFile(e.target.files[0]);
+                              setQuoteFileTitle(e.target.files[0].name);
+                            }}
+                            // onChange={handleFileChange}
                           />
                           {formData.quoteFile}
                         </div>
@@ -350,7 +347,7 @@ export default function PurchasePage() {
                             onChange={handleChange}
                             required
                           >
-                            <option value="" className="dropdown-option">
+                            <option value="" className="dropdown-option" disabled>
                               Select Project
                             </option>
                             {projects.map((project, index) => (

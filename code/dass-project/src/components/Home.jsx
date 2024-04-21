@@ -88,26 +88,26 @@ export default function Home() {
         exit={{ y: window.innerHeight, transition: { duration: 0.5 } }}
       >
         <Link to="/purchase-page">
-          <button className="button purchase-button">
+          <button className="button button-size purchase-button">
             Make/View Purchases
           </button>
         </Link>
-        <span style={{ marginRight: "300px" }}></span>
-        <Link to="/home">
-          <button className="button drone-button" img="./CSS/drone.jpg">
+        <span style={{ marginRight: "120px" }}></span>
+        <Link to="/drone-testing">
+          <button className="button button-size drone-button" img="./CSS/drone.jpg">
             Book a slot for Drone Testing
           </button>
         </Link>
-        <span style={{ marginRight: "300px" }}></span>
-        <Link to="/search">
-          <button className="button drone-button" img="./CSS/drone.jpg" >
-            Search for tools
+        <span style={{ marginRight: "120px" }}></span>
+        <Link to="/leave-page">
+          <button className="button button-size leave-button" img="./CSS/drone.jpg">
+            Apply/Check Leave
           </button>
         </Link>
-        <span style={{ marginRight: "300px" }}></span>
-        <Link to="/leave-page">
-          <button className="button drone-button" img="./CSS/drone.jpg">
-            Apply/Check Leave
+        <span style={{ marginRight: "120px" }}></span>
+        <Link to="/search">
+          <button className="button button-size tool-button" img="./CSS/drone.jpg" >
+            Search for tools
           </button>
         </Link>
       </motion.div>

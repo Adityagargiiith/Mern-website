@@ -1,4 +1,3 @@
-
 import React from "react";
 import "./CSS/home.css";
 import img1 from "./CSS/arka_logo.png";
@@ -7,7 +6,11 @@ import { motion } from "framer-motion";
 import { getUser, getRole } from "./LoginPage";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-export default function LeaveOptions() {
+// import { USER, ROLE } from "./LoginPage";
+// const USER = localStorage.getItem('USER') || '';
+// const ROLE = localStorage.getItem('ROLE') || ''; 
+
+export default function PurchaseOptions() {
   const navigate = useNavigate();
   const [USER, setUSER] = useState(getUser());
   const [ROLE, setROLE] = useState(getRole());
@@ -67,17 +70,23 @@ export default function LeaveOptions() {
           animate={{ height: "100%" }}
           exit={{ y: window.innerHeight, transition: { duration: 0.5 } }}
         >
-          <Link to="/leaveapplication">
-            <button className="button leave-form-button">
-             Apply for leave
+          <Link to="/ticketform">
+            <button className="button drone-form-button">
+              Raise a Ticket
             </button>
           </Link>
-          <span style={{ marginRight: "300px" }}></span>
-          <Link to="/viewallleaves">
-            <button className="button view-leaves" img="./CSS/drone.jpg">
-              View all leaves
+          <span style={{ marginRight: "150px" }}></span>
+          <Link to="/viewalltickets">
+            <button className="button viewall-drone" img="./CSS/drone.jpg">
+              View all Tickets
             </button>
-            </Link>
+          </Link>
+          <span style={{ marginRight: "150px" }}></span>
+          <Link to="/tickettracker">
+            <button className="button personal-tickets" img="./CSS/drone.jpg">
+              View my Tickets
+            </button>
+          </Link>
         </motion.div>
         <main className="main-content">
           <br />
@@ -102,15 +111,15 @@ export default function LeaveOptions() {
           animate={{ height: "100%" }}
           exit={{ y: window.innerHeight, transition: { duration: 0.5 } }}
         >
-          <Link to="/leaveapplication">
-            <button className="button leave-form-button">
-             Apply for leave
+          <Link to="/ticketform">
+            <button className="button purchase-form-button">
+              Raise a Ticket
             </button>
           </Link>
           <span style={{ marginRight: "300px" }}></span>
-          <Link to="/viewyourleaves">
-            <button className="button view-leaves" img="./CSS/drone.jpg">
-              View your leaves
+          <Link to="/tickettracker">
+            <button className="button personal-tickets" img="./CSS/drone.jpg">
+              View my Tickets
             </button>
           </Link>
         </motion.div>

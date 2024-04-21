@@ -1,6 +1,6 @@
 .App {
   text-align: center;
-  background-color: rgb(22, 22, 22);
+  /* background-color: rgb(22, 22, 22); */
   margin: 0%;
   padding: 0%;
   min-height: 100vh;
@@ -11,8 +11,17 @@
   text-shadow: 2px 2px 0 #000000;
 }
 
+.headerx {
+  display:flex;
+  width:233%;
+  justify-content: space-between;
+  align-items: center;
+  background-color: black;
+  color: white;
+}
+
 .header {
-  display: flex;
+  display:flex;
   justify-content: space-between;
   align-items: center;
   background-color: black;
@@ -59,6 +68,7 @@
 .button {
   margin-left: 10px;
   padding: 30px 40px; /* Increased size */
+  margin-top: 100px;
   border: none;
   border-radius: 20%;
   width: 400px;
@@ -67,7 +77,13 @@
   color: white;
   cursor: pointer;
   font-size: 30px; /* Increased font size */
+  line-height: 1em;
   font-weight: bold;
+}
+
+.button-size {
+  width: 300px;
+  height: 300px;
 }
 
 .button:hover {
@@ -104,6 +120,49 @@
   background-size: cover;
   background-position: center;
 }
+
+.drone-form-button {
+  background-image: url('./ticket.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.viewall-drone {
+  background-image: url('./ticketcount.jpeg');
+  background-size: cover;
+  background-position: center;
+
+}
+
+.personal-tickets {
+  background-image: url('./ticket-raising-software.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.leave-button {
+  background-image: url('./leave-management-process.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.tool-button {
+  background-image: url('./toolbut.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.view-leaves {
+  background-image: url('./leave-management-4.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.leave-form-button {
+  background-image: url('./leave-policies.jpg');
+  background-size: cover;
+  background-position: center;
+}
  
 .main-body {
   margin-top: 100px;
@@ -117,7 +176,7 @@
 
 .logout-button {
   filter: opacity(0%);
-  transition: 200ms;
+  transition: 300ms;
   position: absolute;
   top: 8.3%;
   width: 8%;

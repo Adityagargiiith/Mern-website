@@ -35,8 +35,7 @@ export default function ViewAllPurchasePage() {
           ...purchase,
           file: purchase.pdfDetails?.pdf || null,
         }));
-        purchases.sort((a, b) => new Date(b.date) - new Date(a.date));
-        setPurchases(purchases);
+        setPurchases(purchases.reverse());
       } catch (error) {
         console.error("Error fetching purchases:", error);
       }
@@ -71,7 +70,9 @@ export default function ViewAllPurchasePage() {
 
   const handleRowDoubleClick = (purchase) => {
     if (selectedPurchases.some((p) => p._id === purchase._id)) {
-      setSelectedPurchases(selectedPurchases.filter((p) => p._id !== purchase._id));
+      setSelectedPurchases(
+        selectedPurchases.filter((p) => p._id !== purchase._id)
+      );
       setEditableFields((prevFields) => {
         const updatedFields = { ...prevFields };
         delete updatedFields[purchase._id];
@@ -84,6 +85,7 @@ export default function ViewAllPurchasePage() {
         [purchase._id]: {
           orderNo: purchase.orderNo,
           approval: purchase.approval,
+          arrival: purchase.arrival,
           billNo: purchase.billNo,
           trackingNo: purchase.trackingNo,
           description: purchase.description,
@@ -110,8 +112,9 @@ export default function ViewAllPurchasePage() {
         })
       );
       setPurchases(
-        purchases.map((purchase) =>
-          updatedPurchases.find((p) => p._id === purchase._id) || purchase
+        purchases.map(
+          (purchase) =>
+            updatedPurchases.find((p) => p._id === purchase._id) || purchase
         )
       );
       setSelectedPurchases([]);
@@ -121,10 +124,27 @@ export default function ViewAllPurchasePage() {
     }
   };
 
+  const handleLinkBtn = (link) => {
+    window.open(link, "_blank");
+  };
+
+  const sendmail = async (componentName, user, email) => {
+    try {
+      console.log(componentName, user, email)
+      await axios.post("http://localhost:5000/sendmail", {
+        componentName,
+        user,
+        email,
+      });
+    } catch (error) {
+      console.error("Error sending mail:", error);
+    }
+  }
+
   return (
     <>
       <div className="App">
-        <header className="header">
+        <header className="headerx">
           <div onClick={handlehomeredirect} className="header-left">
             <img src={img1} alt="Cogo" className="logo" />
           </div>
@@ -142,18 +162,21 @@ export default function ViewAllPurchasePage() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <div className="align-center">
+          <div>
             <div className="col-12 col-lg-9 col-xl-7">
-              <div className="card" style={{ borderRadius: 30 }}>
+              <div className="cardx" style={{ borderRadius: 30 }}>
                 <div className="purchase-form p-md-5">
                   <h1 className="mb-md-5 heading">VIEW ALL PURCHASES</h1>
                   <table className="table table-hover">
                     <thead>
                       <tr>
                         <th className="table-dark">S. No.</th>
-                        <th className="table-dark">Date and Time</th>
+                        <th className="table-dark">Entry Date</th>
                         <th className="table-dark">Team</th>
-                        <th className="table-dark fixed-column">
+                        <th
+                          className="table-dark fixed-column"
+                          style={{ minWidth: 129 }}
+                        >
                           Link to Purchase
                         </th>
                         <th className="table-dark">Component Name</th>
@@ -163,6 +186,7 @@ export default function ViewAllPurchasePage() {
                         <th className="table-dark">PO/BOM/Quote File</th>
                         <th className="table-dark">Order No</th>
                         <th className="table-dark">Approval</th>
+                        <th className="table-dark">Arrival</th>
                         <th className="table-dark">Bill No</th>
                         <th className="table-dark">Tracking No</th>
                         <th className="table-dark">Description</th>
@@ -179,16 +203,25 @@ export default function ViewAllPurchasePage() {
                           key={index}
                           onDoubleClick={() => handleRowDoubleClick(purchase)}
                           className={
-                            selectedPurchases.some((p) => p._id === purchase._id)
-                              ? 'selected-row'
-                              : ''
+                            selectedPurchases.some(
+                              (p) => p._id === purchase._id
+                            )
+                              ? "selected-row"
+                              : ""
                           }
                         >
                           <td className="table-secondary">{index + 1}</td>
                           <td className="table-secondary">{purchase.date}</td>
                           <td className="table-secondary">{purchase.team}</td>
                           <td className="table-secondary fixed-column">
-                            {purchase.linkToPurchase}
+                            <button
+                              onClick={() =>
+                                handleLinkBtn(purchase.linkToPurchase)
+                              }
+                              className="btn btn-primary file-btn"
+                            >
+                              Open Link
+                            </button>
                           </td>
                           <td className="table-secondary">
                             {purchase.componentName}
@@ -201,17 +234,24 @@ export default function ViewAllPurchasePage() {
                           </td>
                           <td className="table-secondary">
                             <button
-                              onClick={() => showPdf(purchase.pdfDetails?.pdf)}
+                              onClick={() => showPdf(purchase.pdfDetails?.cpdf)}
                               className="btn btn-primary file-btn"
                             >
                               {purchase.chimsFile}
                             </button>
                           </td>
                           <td className="table-secondary">
-                            {purchase.quoteFile}
+                            <button
+                              onClick={() => showPdf(purchase.pdfDetails?.qpdf)}
+                              className="btn btn-primary file-btn"
+                            >
+                              {purchase.quoteFile}
+                            </button>
                           </td>
                           <td className="table-secondary">
-                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                            {selectedPurchases.some(
+                              (p) => p._id === purchase._id
+                            ) ? (
                               <input
                                 type="text"
                                 value={
@@ -233,7 +273,9 @@ export default function ViewAllPurchasePage() {
                             )}
                           </td>
                           <td className="table-secondary">
-                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                            {selectedPurchases.some(
+                              (p) => p._id === purchase._id
+                            ) ? (
                               <input
                                 type="text"
                                 value={
@@ -255,7 +297,37 @@ export default function ViewAllPurchasePage() {
                             )}
                           </td>
                           <td className="table-secondary">
-                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                            {selectedPurchases.some(
+                              (p) => p._id === purchase._id
+                            ) ? (
+                              <input
+                                type="text"
+                                value={
+                                  editableFields[purchase._id]?.arrival ||
+                                  purchase.arrival
+                                }
+                                onChange={(e) => {
+                                  const newValue = e.target.value;
+                                  setEditableFields((prevFields) => ({
+                                    ...prevFields,
+                                    [purchase._id]: {
+                                      ...prevFields[purchase._id],
+                                      arrival: newValue,
+                                    },
+                                  }));
+                                  if (newValue === "Yes") {
+                                    sendmail(purchase.componentName, purchase.user, purchase.email);
+                                  }
+                                }}
+                              />
+                            ) : (
+                              purchase.arrival
+                            )}
+                          </td>
+                          <td className="table-secondary">
+                            {selectedPurchases.some(
+                              (p) => p._id === purchase._id
+                            ) ? (
                               <input
                                 type="text"
                                 value={
@@ -277,7 +349,9 @@ export default function ViewAllPurchasePage() {
                             )}
                           </td>
                           <td className="table-secondary">
-                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                            {selectedPurchases.some(
+                              (p) => p._id === purchase._id
+                            ) ? (
                               <input
                                 type="text"
                                 value={
@@ -299,7 +373,9 @@ export default function ViewAllPurchasePage() {
                             )}
                           </td>
                           <td className="table-secondary">
-                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                            {selectedPurchases.some(
+                              (p) => p._id === purchase._id
+                            ) ? (
                               <input
                                 type="text"
                                 value={
@@ -321,7 +397,9 @@ export default function ViewAllPurchasePage() {
                             )}
                           </td>
                           <td className="table-secondary">
-                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                            {selectedPurchases.some(
+                              (p) => p._id === purchase._id
+                            ) ? (
                               <input
                                 type="text"
                                 value={
@@ -343,7 +421,9 @@ export default function ViewAllPurchasePage() {
                             )}
                           </td>
                           <td className="table-secondary">
-                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                            {selectedPurchases.some(
+                              (p) => p._id === purchase._id
+                            ) ? (
                               <input
                                 type="text"
                                 value={
@@ -365,7 +445,9 @@ export default function ViewAllPurchasePage() {
                             )}
                           </td>
                           <td className="table-secondary">
-                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                            {selectedPurchases.some(
+                              (p) => p._id === purchase._id
+                            ) ? (
                               <input
                                 type="text"
                                 value={
@@ -387,7 +469,9 @@ export default function ViewAllPurchasePage() {
                             )}
                           </td>
                           <td className="table-secondary">
-                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                            {selectedPurchases.some(
+                              (p) => p._id === purchase._id
+                            ) ? (
                               <input
                                 type="text"
                                 value={
@@ -409,7 +493,9 @@ export default function ViewAllPurchasePage() {
                             )}
                           </td>
                           <td className="table-secondary">
-                            {selectedPurchases.some((p) => p._id === purchase._id) ? (
+                            {selectedPurchases.some(
+                              (p) => p._id === purchase._id
+                            ) ? (
                               <input
                                 type="text"
                                 value={
@@ -434,9 +520,10 @@ export default function ViewAllPurchasePage() {
                       ))}
                     </tbody>
                   </table>
+                  <br />
                   {selectedPurchases.length > 0 && (
                     <div className="edit-form">
-                      <button type="submit" onClick={handleSubmit}>
+                      <button type="submit" onClick={handleSubmit} className="save-button">
                         Save
                       </button>
                     </div>

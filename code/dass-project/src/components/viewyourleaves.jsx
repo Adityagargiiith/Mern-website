@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getUser } from "./LoginPage";
@@ -49,10 +50,10 @@ const Viewyourleaves = () => {
       navigate("/home");
     }, 100);
   };
-  const userLeaves = leaveApplications.filter((leave) => leave.userName == USER);
+  const userLeaves = leaveApplications.filter((leave) => leave.userName === USER);
   return (
-    <div>
-      <header className="header">
+    <div className='App'>
+      <header className="header mb-3">
           <div onClick={handlehomeredirect} className="header-left">
             <img src={img1} alt="Cogo" className="logo" />
           </div>
@@ -63,26 +64,27 @@ const Viewyourleaves = () => {
             </button>
           </div>
         </header>
-      <table>
+        <h1 className='title mb-5' style={{ color: "#fff" }}>Your Leave Applications</h1>
+      <table className='tableT'>
         <thead>
           <tr>
-            <th>User Name</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Leave Type</th>
-            <th>Reason</th>
-            <th>Status</th>
+            <th className='rowT Thead'>User Name</th>
+            <th className='rowT Thead'>Start Date</th>
+            <th className='rowT Thead'>End Date</th>
+            <th className='rowT Thead'>Leave Type</th>
+            <th className='rowT Thead'>Reason</th>
+            <th className='rowT Thead'>Status</th>
           </tr>
         </thead>
         <tbody>
           {userLeaves.map((application, index) => (
             <tr key={index}>
-              <td>{application.userName}</td>
-              <td>{application.startDate}</td>
-              <td>{application.endDate}</td>
-              <td>{application.leaveType}</td>
-              <td>{application.reason}</td>
-              <td>{application.status}</td>
+              <td className='rowT Tsimp'>{application.userName}</td>
+              <td className='rowT Tsimp'>{application.startDate}</td>
+              <td className='rowT Tsimp'>{application.endDate}</td>
+              <td className='rowT Tsimp'>{application.leaveType}</td>
+              <td className='rowT Tsimp'>{application.reason}</td>
+              <td className='rowT Tsimp'>{application.status}</td>
             </tr>
           ))}
         </tbody>
